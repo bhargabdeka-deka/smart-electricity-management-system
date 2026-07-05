@@ -6,14 +6,14 @@
   --font-body: 'Inter', sans-serif;
 
   /* Font Sizes - Desktop */
-  --text-h1: 2.5rem;
-  --text-h2: 2rem;
-  --text-h3: 1.5rem;
-  --text-h4: 1.25rem;
-  --text-body-large: 1.125rem;
-  --text-body-regular: 1rem;
-  --text-small: 0.875rem;
-  --text-caption: 0.75rem;
+  --text-h1: 42px;
+  --text-h2: 30px;
+  --text-h3: 22px;
+  --text-h4: 20px;
+  --text-body-large: 18px;
+  --text-body-regular: 17px;
+  --text-small: 14px;
+  --text-caption: 12px;
   
   /* Font Weights */
   --weight-regular: 400;
@@ -32,16 +32,31 @@
   --tracking-wide: 0.025em;
 }
 
-/* Responsive Typography */
-@media (max-width: 768px) {
+/* Responsive Typography & Utilities */
+@media (max-width: 991px) {
   :root {
-    --text-h1: 2rem;
-    --text-h2: 1.75rem;
-    --text-h3: 1.25rem;
-    --text-h4: 1.125rem;
-    --text-body-large: 1rem;
-    --text-body-regular: 0.9375rem;
+    --text-h1: 36px;
+    --text-h2: 26px;
+    --text-h3: 20px;
+    --text-body-regular: 16px;
   }
+}
+@media (max-width: 576px) {
+  :root {
+    --text-h1: 30px;
+    --text-h2: 24px;
+    --text-h3: 18px;
+    --text-body-regular: 16px;
+  }
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+* {
+  overflow-wrap: break-word;
 }
 
 body {

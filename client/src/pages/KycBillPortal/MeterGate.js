@@ -28,11 +28,15 @@ export default function MeterGate({ onSubmit }) {
 
   return (
     <form className="meter-gate" onSubmit={handleSubmit}>
-      <label htmlFor="meter-number">Meter Number:</label>
+      <h3>Enter Account Number</h3>
+      <p style={{ color: '#6B7280', fontSize: '14px', marginBottom: '20px' }}>
+        Please enter your APDCL Account Number to proceed with KYC/Billing verification.
+      </p>
       <input
         id="meter-number"
         type="text"
-        placeholder="Enter your 12-digit meter number"
+        className="input-field"
+        placeholder="Account Number"
         value={meter}
         onChange={e => setMeter(e.target.value)}
       />

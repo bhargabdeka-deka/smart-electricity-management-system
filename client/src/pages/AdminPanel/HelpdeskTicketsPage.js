@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 import './HelpdeskTicketsPage.css';
 
 export default function HelpdeskTicketsPage() {
@@ -31,7 +32,7 @@ export default function HelpdeskTicketsPage() {
   const sendReply = async (ticketId) => {
     const replyText = replyMap[ticketId]?.trim();
     if (!replyText) {
-      return alert('Please enter a reply.');
+      return toast.warning('Please enter a reply.');
     }
 
     try {
@@ -39,7 +40,7 @@ export default function HelpdeskTicketsPage() {
         `/api/admin/tickets/${ticketId}/reply`,
         { reply: replyText }
       );
-      alert('Reply sent successfully!');
+      toast.success('Reply sent successfully!');
       setReplyMap(prev => ({ ...prev, [ticketId]: '' }));
 
       // Refresh list
@@ -47,7 +48,7 @@ export default function HelpdeskTicketsPage() {
       setTickets(updated.data);
     } catch (err) {
       console.error('Reply failed:', err);
-      alert('Failed to send reply');
+      toast.error('Failed to send reply. Server error occurred.');
     }
   };
 

@@ -2,13 +2,18 @@ import React from 'react';
 import { Bell, CheckCircle, Clock, AlertTriangle } from 'lucide-react';
 import './Dashboard.css';
 
-const ActivityCard = ({ activities }) => {
+const ActivityCard = ({ activities, config }) => {
+  if (!config?.visible) return null;
+
   return (
     <div className="dash-card">
-      <h3 className="dash-card-title"><Bell size={20} /> Recent Activities</h3>
+      <h3 className="dash-card-title"><Bell size={20} /> {config.title || 'System Notifications'}</h3>
       
       {(!activities || activities.length === 0) ? (
-        <p style={{ color: '#6B7280' }}>No recent activity to show.</p>
+        <div style={{ textAlign: 'center', padding: '2rem 0', color: '#6B7280' }}>
+          <Bell size={48} style={{ opacity: 0.2, marginBottom: '1rem' }} />
+          <p>No recent system notifications.</p>
+        </div>
       ) : (
         <div className="activity-list">
           {activities.map((act, idx) => (

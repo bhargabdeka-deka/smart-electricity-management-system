@@ -2,13 +2,18 @@ import React from 'react';
 import { BarChart2 } from 'lucide-react';
 import './Dashboard.css';
 
-const EnergyPreview = ({ usageData }) => {
+const EnergyPreview = ({ usageData, config }) => {
+  if (!config?.visible) return null;
+
   return (
     <div className="dash-card">
-      <h3 className="dash-card-title"><BarChart2 size={20} /> Energy Usage Preview</h3>
+      <h3 className="dash-card-title"><BarChart2 size={20} /> {config.title || 'Energy Usage Preview'}</h3>
       
       {!usageData || usageData.length === 0 ? (
-        <p style={{ color: '#6B7280' }}>Loading usage data...</p>
+        <div style={{ textAlign: 'center', padding: '2rem 0', color: '#6B7280' }}>
+          <BarChart2 size={48} style={{ opacity: 0.2, marginBottom: '1rem' }} />
+          <p>No energy usage data available yet.</p>
+        </div>
       ) : (
         <div className="energy-preview-bars">
           {/* Show only last 4 months for the preview to keep it compact */}

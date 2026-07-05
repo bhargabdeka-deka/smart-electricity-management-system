@@ -18,6 +18,21 @@
   font-size: var(--text-body-regular);
   border-radius: 8px;
   border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+@media (max-width: 576px) {
+  .tracker-container {
+    padding: 1rem;
+  }
+  .tracker-container button {
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .chart-container {
+    width: 100%;
+    overflow-x: hidden;
+  }
 }
 
 .tracker-container button {

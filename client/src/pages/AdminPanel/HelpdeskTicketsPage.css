@@ -23,6 +23,7 @@ textarea {
   border-radius: 6px;
   padding: 6px;
   border: 1px solid #aaa;
+  box-sizing: border-box;
 }
 
 button {
@@ -36,4 +37,11 @@ button {
 
 button:hover {
   background-color: #3b4d56;
+}
+
+@media (max-width: 576px) {
+  button {
+    width: 100%;
+    box-sizing: border-box;
+  }
 }

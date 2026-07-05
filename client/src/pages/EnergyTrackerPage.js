@@ -1,52 +1,70 @@
 import React, { useState, useEffect } from 'react';
-import { Bar } from 'react-chartjs-2';
 import axios from 'axios';
+import { useLifecycle } from '../hooks/useLifecycle';
 import {
   Chart,
   CategoryScale,
   LinearScale,
   BarElement,
   Title,
-  Tooltip,
+  Tooltip as ChartTooltip,
   Legend
 } from 'chart.js';
+import { Bar } from 'react-chartjs-2';
+import { Settings } from 'lucide-react';
+import { LoadingSpinner } from '../components/Common';
 import './EnergyTrackerPage.css';
 
-Chart.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+Chart.register(CategoryScale, LinearScale, BarElement, Title, ChartTooltip, Legend);
 
 export default function EnergyTrackerPage() {
   const [meterNumber, setMeterNumber] = useState('');
-  const [usageData, setUsageData]     = useState(null);
+  const [usageData, setUsageData] = useState(null);
+  const [connectionStatus, setConnectionStatus] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
 
-  // grab token & stored meter from localStorage
-  const stored = JSON.parse(localStorage.getItem('user')) || {};
-  const { token, meterNumber: storedMeter } = stored;
-
-  // set JWT header once on mount
   useEffect(() => {
-    if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    }
-  }, [token]);
+    const fetchInit = async () => {
+      const stored = JSON.parse(localStorage.getItem('user'));
+      if (stored) {
+        setUser(stored);
+        setMeterNumber(stored.meterNumber || '');
+        
+        try {
+          const connRes = await axios.get('http://localhost:5000/api/connections/my-request', {
+            headers: { Authorization: `Bearer ${stored.token}` }
+          });
+          setConnectionStatus(connRes.data);
+        } catch (err) {
+          setConnectionStatus({ status: 'Not Applied' });
+        }
+      }
+      setLoading(false);
+    };
+    fetchInit();
+  }, []);
+
+  const { isAllowed } = useLifecycle(connectionStatus);
 
   const fetchMonthlyUsage = async () => {
-    // 1) length check
+    if (!user) return;
     if (meterNumber.length !== 12) {
       setUsageData(null);
-      alert('Meter number must be 12 digits.');
+      alert('Account number must be 12 digits.');
       return;
     }
 
-    // 2) ownership check
-    if (meterNumber !== storedMeter) {
+    if (meterNumber !== user.meterNumber) {
       setUsageData(null);
-      alert('Please enter your own meter number.');
+      alert('Please enter your own account number.');
       return;
     }
 
-    // 3) valid—fetch data
     try {
-      const res = await axios.get('/api/users/usage');
+      const res = await axios.get('http://localhost:5000/api/users/usage', {
+        headers: { Authorization: `Bearer ${user.token}` }
+      });
       setUsageData(res.data);
     } catch (err) {
       console.error('Error fetching usage:', err.response || err.message);
@@ -54,7 +72,20 @@ export default function EnergyTrackerPage() {
     }
   };
 
-  // chart config (unchanged)
+  if (loading) return <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}><LoadingSpinner /></div>;
+
+  if (!isAllowed('/tracker')) {
+    return (
+      <div className="tracker-container" style={{ textAlign: 'center', padding: '4rem 2rem' }}>
+        <Settings size={48} style={{ opacity: 0.2, marginBottom: '1rem', color: '#6B7280' }} />
+        <h2 style={{ color: '#111827' }}>Energy Data Unavailable</h2>
+        <p style={{ color: '#6B7280', marginTop: '0.5rem' }}>
+          Energy data will become available after your electricity connection becomes active.
+        </p>
+      </div>
+    );
+  }
+
   const chartData = usageData && {
     labels: usageData.map(m => m.month),
     datasets: [{
@@ -74,7 +105,7 @@ export default function EnergyTrackerPage() {
     plugins: {
       title: {
         display: true,
-        text: `Monthly Usage for Meter ${meterNumber}`,
+        text: `Monthly Usage for Account ${meterNumber}`,
         color: '#007bff',
         font: { size: 18 }
       },
@@ -106,7 +137,7 @@ export default function EnergyTrackerPage() {
         type="text"
         inputMode="numeric"
         pattern="\d*"
-        placeholder="🔢 Enter 12-digit Meter Number"
+        placeholder="🔢 Enter 12-digit Account Number"
         value={meterNumber}
         onChange={e => {
           const d = e.target.value.replace(/\D/g, '').slice(0, 12);
@@ -132,15 +163,11 @@ export default function EnergyTrackerPage() {
               <li>Switch off lights and fans when not in use.</li>
               <li>Replace incandescent bulbs with LED alternatives.</li>
               <li>Unplug chargers and electronics to avoid standby power.</li>
-              <li>Run full loads in your dishwasher and washing machine.</li>
-              <li>Use cold-water cycles to save on heating costs.</li>
-              <li>Seal window and door gaps to maintain indoor temperature.</li>
-              <li>Hang clothes to dry instead of using the dryer.</li>
             </ul>
           </div>
         </>
       ) : (
-        <p className="pending-note">📊 Enter your meter number to display the usages </p>
+        <p className="pending-note">📊 Enter your account number to display the usages </p>
       )}
     </div>
   );

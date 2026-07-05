@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 import './EngineerPanel.css';
 
 // Map status string → CSS class
@@ -54,10 +55,10 @@ export default function EngineerJobs() {
         { status, ...extra },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      alert(`✅ Status updated to "${status}"`);
+      toast.success(`Status updated to "${status}"`);
       fetchJobs();
     } catch (err) {
-      alert(err.response?.data?.message || '⚠️ Failed to update status.');
+      toast.error('Failed to update status. Server error occurred.');
     } finally {
       setBusy(prev => ({ ...prev, [jobId]: false }));
     }
@@ -78,8 +79,8 @@ export default function EngineerJobs() {
 
   const submitCompletion = async (jobId) => {
     const f = formState[jobId] || {};
-    if (!f.meterSerial?.trim()) return alert('⚠️ Meter Serial Number is required.');
-    if (!f.installDate)         return alert('⚠️ Installation Date is required.');
+    if (!f.meterSerial?.trim()) return toast.warning('Meter Serial Number is required.');
+    if (!f.installDate)         return toast.warning('Installation Date is required.');
 
     await updateStatus(jobId, 'Meter Installed', {
       meterSerialNumber:   f.meterSerial,

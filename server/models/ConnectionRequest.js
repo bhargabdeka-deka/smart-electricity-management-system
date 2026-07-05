@@ -57,7 +57,7 @@ const connectionRequestSchema = new mongoose.Schema({
       'Pending', 'Under Review', 'Approved', 'Rejected',
       'Submitted', 'Documents Verified', 'Engineer Assigned',
       'Visit Scheduled', 'Installation In Progress',
-      'Meter Installed', 'Completed'
+      'Meter Installed', 'Completed', 'Withdrawn'
     ],
     default: 'Pending'
   },
@@ -131,7 +131,30 @@ const connectionRequestSchema = new mongoose.Schema({
   
   customerSignature: {
     type: String
+  },
+  
+  withdrawnAt: {
+    type: Date
+  },
+  
+  withdrawalReason: {
+    type: String
+  },
+
+  applicationId: {
+    type: String,
+    unique: true
   }
+});
+
+// Auto-generate applicationId before saving a new document
+connectionRequestSchema.pre('save', function(next) {
+  if (this.isNew && !this.applicationId) {
+    const dateStr = new Date().getFullYear();
+    const randomNum = Math.floor(100000 + Math.random() * 900000); // 6 digits
+    this.applicationId = `APP-${dateStr}-${randomNum}`;
+  }
+  next();
 });
 
 // Index for faster retrieval/sorting

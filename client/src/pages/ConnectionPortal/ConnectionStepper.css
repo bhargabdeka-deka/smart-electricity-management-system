@@ -39,3 +39,28 @@
   color: #fff;
   box-shadow: 0 0 8px rgba(98, 0, 234, 0.3);
 }
+
+@media (max-width: 991px) {
+  .stepper-container {
+    max-width: 90%;
+  }
+}
+
+@media (max-width: 576px) {
+  .stepper-container {
+    max-width: 100%;
+    margin: 24px auto;
+    padding: 16px;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .stepper-progress {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .stepper-progress span {
+    padding: 8px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+}

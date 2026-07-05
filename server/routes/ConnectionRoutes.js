@@ -22,6 +22,16 @@ router.post(
       const user = await User.findById(req.user.userId);
       if (!user) return res.status(404).json({ message: 'User not found' });
 
+      const activeRequest = await ConnectionRequest.findOne({
+        userId: user._id,
+        status: { 
+          $nin: ['Withdrawn', 'Rejected'] 
+        }
+      });
+      if (activeRequest) {
+        return res.status(400).json({ message: 'You already have an active connection request.' });
+      }
+
       // validate fields (omitted for brevity)...
 
       const newReq = new ConnectionRequest({
@@ -60,12 +70,80 @@ router.get(
     try {
       const reqDoc = await ConnectionRequest.findOne({
         userId: req.user.userId
-      });
+      }).sort({ createdAt: -1 });
       if (!reqDoc) return res.status(404).json({ status: 'Not Applied' });
-      return res.json({ status: reqDoc.status });
+      return res.json(reqDoc);
     } catch (err) {
       console.error(err);
       return res.status(500).json({ message: 'Failed to fetch status' });
+    }
+  }
+);
+
+// GET - fetch connection history for current user
+router.get(
+  '/history',
+  verifyToken,
+  async (req, res) => {
+    try {
+      const history = await ConnectionRequest.find({
+        userId: req.user.userId
+      }).sort({ createdAt: -1 });
+      res.json(history);
+    } catch (err) {
+  console.error("===== HISTORY ERROR =====");
+  console.error(err);
+  console.error(err.stack);
+
+  res.status(500).json({
+    message: err.message
+  });
+}
+  }
+);
+// GET - fetch specific connection request
+router.get(
+  '/:id',
+  verifyToken,
+  async (req, res) => {
+    try {
+      const reqDoc = await ConnectionRequest.findOne({
+        _id: req.params.id,
+        userId: req.user.userId
+      });
+      if (!reqDoc) return res.status(404).json({ message: 'Application not found' });
+      res.json(reqDoc);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Failed to fetch application details' });
+    }
+  }
+);
+
+// PUT – withdraw application
+router.put(
+  '/withdraw',
+  verifyToken,
+  async (req, res) => {
+    try {
+      const reqDoc = await ConnectionRequest.findOne({
+        userId: req.user.userId,
+        status: { $nin: ['Withdrawn', 'Completed', 'Activated', 'Meter Installed'] }
+      }).sort({ createdAt: -1 });
+
+      if (!reqDoc) {
+        return res.status(400).json({ message: 'No active application found to withdraw.' });
+      }
+
+      reqDoc.status = 'Withdrawn';
+      reqDoc.withdrawnAt = new Date();
+      reqDoc.withdrawalReason = 'Customer Request';
+      await reqDoc.save();
+
+      res.status(200).json({ message: 'Application withdrawn successfully.' });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Server error' });
     }
   }
 );

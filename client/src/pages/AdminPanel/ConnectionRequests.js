@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 import './ConnectionRequests.css';
 
 const ConnectionRequests = () => {
@@ -59,10 +60,10 @@ const ConnectionRequests = () => {
       await axios.put(`/api/admin/applications/${id}/status`, { status }, {
         headers: { Authorization: `Bearer ${user.token}` }
       });
-      alert(`✅ Application ${status} successfully!`);
+      toast.success(`Application ${status} successfully!`);
       fetchRequests();
     } catch (err) {
-      alert('⚠️ Failed to update application.');
+      toast.error('Failed to update application. Server error occurred.');
     }
   };
 
@@ -70,7 +71,7 @@ const ConnectionRequests = () => {
   const handleAssignEngineer = async (requestId) => {
     const engineerId = selectedEngineer[requestId];
     if (!engineerId) {
-      return alert('⚠️ Please select an engineer first.');
+      return toast.warning('Please select an engineer first.');
     }
     setAssigning(prev => ({ ...prev, [requestId]: true }));
     try {
@@ -79,12 +80,12 @@ const ConnectionRequests = () => {
         { engineerId },
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
-      alert(`✅ ${res.data.message}`);
+      toast.success(res.data.message || 'Engineer assigned successfully!');
       // Clear the selection for this card and refresh
       setSelectedEngineer(prev => ({ ...prev, [requestId]: '' }));
       fetchRequests();
     } catch (err) {
-      alert(err.response?.data?.message || '⚠️ Failed to assign engineer.');
+      toast.error('Failed to assign engineer. Please try again later.');
     } finally {
       setAssigning(prev => ({ ...prev, [requestId]: false }));
     }

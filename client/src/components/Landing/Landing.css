@@ -146,6 +146,36 @@
   cursor: pointer;
 }
 
+/* Mobile Menu Dropdown */
+.landing-mobile-menu {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--primary-color);
+  padding: 1rem 2rem 2rem;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  gap: 1rem;
+}
+
+.landing-mobile-menu a {
+  color: white;
+  font-weight: var(--weight-medium);
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.landing-mobile-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+@media (min-width: 769px) {
+  .landing-mobile-menu {
+    display: none !important;
+  }
+}
+
 /* --- HERO SECTION --- */
 .landing-hero {
   display: flex;

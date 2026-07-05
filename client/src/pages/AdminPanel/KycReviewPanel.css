@@ -59,6 +59,7 @@
   border-radius: 6px;
   resize: vertical;
   font-size: var(--text-small);
+  box-sizing: border-box;
 }
 
 .kyc-buttons {
@@ -87,4 +88,17 @@
 
 .kyc-buttons button:nth-child(2) {
   background-color: #dc3545; /* Red for Reject */
+}
+
+@media (max-width: 576px) {
+  .kyc-panel-container {
+    padding: 1rem;
+  }
+  .kyc-buttons {
+    flex-direction: column;
+  }
+  .kyc-buttons button {
+    width: 100%;
+    box-sizing: border-box;
+  }
 }

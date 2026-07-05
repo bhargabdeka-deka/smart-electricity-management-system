@@ -111,6 +111,21 @@
   .pending-section,
   .processed-section {
     width: 100%;
+    min-width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .btn-approve, .btn-reject, .btn-assign {
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 8px;
+    box-sizing: border-box;
+  }
+  .assign-section select {
+    box-sizing: border-box;
+  }
+  .request-dashboard {
+    padding: 1rem;
   }
 }
 

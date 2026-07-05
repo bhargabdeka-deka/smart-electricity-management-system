@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { toast } from 'react-toastify';
+import { LoadingButton } from '../../components/Common';
+import { useLifecycle } from '../../hooks/useLifecycle';
 import './HelpdeskPage.css';
 import ComplaintCard from './ComplaintCard';
 import FeedbackForm from './FeedbackForm';
@@ -9,16 +12,32 @@ export default function HelpdeskPage() {
   const { token } = JSON.parse(localStorage.getItem('user')) || {};
 
   const [issueText, setIssueText]           = useState('');
+  const [issueType, setIssueType]           = useState('');
   const [ticketData, setTicketData]         = useState(null);
+  const [connectionStatus, setConnectionStatus] = useState(null);
   const [showFeedbackForm, setShowFeedbackForm] = useState(false);
+  const [submitting, setSubmitting]         = useState(false);
+
+  const { config } = useLifecycle(connectionStatus);
+  const allowedCategories = config?.helpdeskCategories || [];
 
   // Set auth header once, and load ticket
   useEffect(() => {
     if (token) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       fetchTicket();
+      fetchConnectionStatus();
     }
   }, [token]);
+
+  const fetchConnectionStatus = async () => {
+    try {
+      const res = await axios.get('/api/connections/my-request');
+      setConnectionStatus(res.data);
+    } catch (err) {
+      console.error('Error fetching connection status');
+    }
+  };
 
   // Fetch the user’s latest ticket
   const fetchTicket = async () => {
@@ -40,21 +59,28 @@ export default function HelpdeskPage() {
 
   // Submit a new complaint
   const submitTicket = async () => {
-    if (!issueText.trim()) {
-      return alert('Please describe your issue');
+    if (!issueType) {
+      return toast.warning('Please select a category.');
     }
+    if (!issueText.trim()) {
+      return toast.warning('Please describe your issue before submitting.');
+    }
+    setSubmitting(true);
     try {
-      const res = await axios.post('/api/users/helpdesk', { issueText });
+      const res = await axios.post('/api/users/helpdesk', { issueType, issueText });
       console.log('✅ Ticket created:', res.data);
-      alert('Complaint submitted');
+      toast.success('Complaint submitted successfully.');
       setIssueText('');
+      setIssueType('');
       fetchTicket();
     } catch (err) {
       console.error(
         '❌ Ticket submit error:',
         err.response?.data?.message || err.message
       );
-      alert(err.response?.data?.message || 'Could not submit your request');
+      toast.error(err.response?.data?.message || 'Could not submit your request. Server error.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -75,7 +101,23 @@ export default function HelpdeskPage() {
         value={issueText}
         onChange={e => setIssueText(e.target.value)}
       />
-      <button onClick={submitTicket}>Send Request</button>
+            <select
+              value={issueType}
+              onChange={(e) => setIssueType(e.target.value)}
+            >
+              <option value="">-- Select Issue Type --</option>
+              {allowedCategories.map(cat => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
+      <LoadingButton 
+        isLoading={submitting} 
+        loadingText="Submitting..." 
+        onClick={submitTicket}
+        style={{ marginTop: '1rem', marginBottom: '2rem' }}
+      >
+        Send Request
+      </LoadingButton>
 
       {/* Existing complaint & reply */}
       {ticketData ? (

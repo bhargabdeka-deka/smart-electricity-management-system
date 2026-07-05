@@ -42,6 +42,7 @@
   border-radius: 4px;
   font-size: var(--text-body-regular);
   resize: vertical;
+  box-sizing: border-box;
 }
 
 /* Submit Button */
@@ -115,6 +116,7 @@
   border-radius: 4px;
   font-size: var(--text-body-regular);
   resize: vertical;
+  box-sizing: border-box;
 }
 
 /* Responsive */

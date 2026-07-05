@@ -24,14 +24,17 @@ const getCurrentIndex = (currentStatus) => {
   return stages.indexOf(currentStatus);
 };
 
-const TimelineCard = ({ status }) => {
+const TimelineCard = ({ status, config }) => {
+  if (!config?.visible) return null;
+
   if (!status || status.status === 'Not Applied' || status.status === 'Rejected') {
     return (
       <div className="dash-card">
-        <h3 className="dash-card-title"><Clock size={20} /> Connection Timeline</h3>
-        <p style={{ color: '#6B7280' }}>
-          {status?.status === 'Rejected' ? '❌ Your application was rejected.' : 'No active connection request.'}
-        </p>
+        <h3 className="dash-card-title"><Clock size={20} /> {config.title || 'Connection Timeline'}</h3>
+        <div style={{ textAlign: 'center', padding: '2rem 0', color: '#6B7280' }}>
+          <Clock size={48} style={{ opacity: 0.2, marginBottom: '1rem' }} />
+          <p>{status?.status === 'Rejected' ? '❌ Your application was rejected.' : 'No active connection request.'}</p>
+        </div>
       </div>
     );
   }
@@ -40,16 +43,48 @@ const TimelineCard = ({ status }) => {
 
   return (
     <div className="dash-card">
-      <h3 className="dash-card-title"><Clock size={20} /> Live Connection Tracking</h3>
+      <h3 className="dash-card-title"><Clock size={20} /> {config.title || 'Live Connection Tracking'}</h3>
       
       <div className="timeline-container">
-        {stages.map((stage, index) => {
-          const isCompleted = index <= currentIdx;
-          const isCurrent = index === currentIdx;
+        {(status.status === 'Withdrawn' 
+          ? ['Registered', 'Application Submitted', 'Application Withdrawn', 'Under Review', 'Approved', 'Engineer Assigned', 'Visit Scheduled', 'Installation In Progress', 'Meter Installed', 'Completed'] 
+          : stages
+        ).map((stage, index) => {
+          let isCompleted = false;
+          let isCurrent = false;
+          let isCancelled = false;
+
+          if (status.status === 'Withdrawn') {
+            if (index <= 1) isCompleted = true;
+            else if (index === 2) isCurrent = true;
+            else isCancelled = true;
+          } else {
+            isCompleted = index <= currentIdx;
+            isCurrent = index === currentIdx;
+          }
+
+          const isWithdrawnStep = status.status === 'Withdrawn' && stage === 'Application Withdrawn';
+          let circleContent = isCompleted ? '✓' : index + 1;
+          if (isWithdrawnStep) circleContent = '❌';
+          if (isCancelled && status.status === 'Withdrawn') circleContent = index; // Adjust index because we added Registered and Withdrawn
+
           return (
-            <div key={stage} className={`timeline-step ${isCompleted ? 'completed' : ''} ${isCurrent ? 'current' : ''}`}>
-              <div className="step-circle">{isCompleted ? '✓' : index + 1}</div>
-              <div className="step-label">{getStageLabel(stage)}</div>
+            <div key={stage} className={`timeline-step ${isCompleted && !isWithdrawnStep ? 'completed' : ''} ${isCurrent && !isWithdrawnStep ? 'current' : ''} ${isCancelled ? 'cancelled' : ''}`} style={isCancelled ? { opacity: 0.4 } : {}}>
+              <div 
+                className="step-circle" 
+                style={isWithdrawnStep ? { backgroundColor: '#FEE2E2', color: '#DC2626', borderColor: '#DC2626' } : {}}
+              >
+                {circleContent}
+              </div>
+              <div className="step-label" style={isWithdrawnStep ? { color: '#DC2626', fontWeight: 'bold' } : {}}>
+                {isWithdrawnStep ? stage : getStageLabel(stage)}
+                {isWithdrawnStep && (
+                  <>
+                    <div style={{ fontSize: '12px', color: '#6B7280', fontWeight: 'normal', marginTop: '2px' }}>Withdrawn by Customer</div>
+                    <div style={{ fontSize: '12px', color: '#9CA3AF', fontWeight: 'normal', marginTop: '2px', fontStyle: 'italic' }}>Remaining processing cancelled.</div>
+                  </>
+                )}
+              </div>
             </div>
           );
         })}
@@ -84,6 +119,14 @@ const TimelineCard = ({ status }) => {
             <strong>{status.visitDate.slice(0, 10)}</strong>
           </div>
         )}
+        
+        {status.expectedCompletionDate && (
+          <div className="timeline-details-row">
+            <span>Expected Completion:</span>
+            <strong>{status.expectedCompletionDate.slice(0, 10)}</strong>
+          </div>
+        )}
+        
         {status.meterSerialNumber && (
           <div className="timeline-details-row">
             <span>Meter Serial:</span>

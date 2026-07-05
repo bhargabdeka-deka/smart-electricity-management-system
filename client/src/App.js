@@ -6,6 +6,8 @@ import {
   Navigate,
   useLocation
 } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // 🌐 User Pages
 import HomePage from './pages/HomePage';
@@ -32,6 +34,7 @@ import AdminNavbar from './components/AdminNavbar';
 import SuperNavbar from './components/SuperNavbar';
 import EngineerNavbar from './components/EngineerNavbar';
 import ConnectionStepper from './pages/ConnectionPortal/ConnectionStepper';
+import ApplicationTrackerPage from './pages/ConnectionPortal/ApplicationTrackerPage';
 
 // 🔧 Engineer Panel Pages
 import EngineerDashboard from './pages/EngineerPanel/EngineerDashboard';
@@ -66,6 +69,7 @@ function AppWrapper() {
 
   return (
     <>
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
       {/* Role-based Navbar */}
       {showNavbar && user.role === 'user' && <UserNavbar />}
       {showNavbar && ['admin', 'superadmin'].includes(user.role) && (
@@ -99,6 +103,16 @@ function AppWrapper() {
           element={
             user?.token && user.role === 'user' ? (
               <ConnectionStepper />
+            ) : (
+              <Navigate to="/" />
+            )
+          }
+        />
+        <Route
+          path="/application-tracker"
+          element={
+            user?.token && user.role === 'user' ? (
+              <ApplicationTrackerPage />
             ) : (
               <Navigate to="/" />
             )

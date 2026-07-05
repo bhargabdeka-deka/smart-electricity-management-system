@@ -25,25 +25,7 @@ export default function StepAddressMeter({ formData, setFormData, next, prev }) 
         required
       />
 
-      <input
-        name="load"
-        type="number"
-        value={formData.load || ''}
-        onChange={handleChange}
-        placeholder="⚡ Load (kW)"
-        required
-      />
-
-      <select
-        name="meterType"
-        value={formData.meterType || ''}
-        onChange={handleChange}
-        required
-      >
-        <option value="">Select Meter</option>
-        <option value="Single Phase">Single Phase</option>
-        <option value="Three Phase">Three Phase</option>
-      </select>
+      {/* Load and Meter Type have been removed from the UI per the new workflow. */}
 
       {/* Visit Date Field with Placeholder Overlay */}
       <div className="date-input-wrapper">

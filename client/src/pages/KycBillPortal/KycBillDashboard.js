@@ -181,6 +181,9 @@ export default function KycBillDashboard() {
             >
               <h3>📋 KYC Submission Status</h3>
               <p>
+                <strong>Account Number:</strong> {meterNumber}
+              </p>
+              <p>
                 <strong>Status:</strong>{' '}
                 <span className="kyc-badge">
                   {kycInfo.kycStatus === 'Pending'

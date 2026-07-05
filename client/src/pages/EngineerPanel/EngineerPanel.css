@@ -224,9 +224,21 @@
 }
 
 /* ── Responsive ── */
-@media (max-width: 600px) {
+@media (max-width: 576px) {
   .stat-grid,
   .engineer-grid {
     grid-template-columns: 1fr;
+  }
+  .engineer-container, .jobs-container {
+    padding: 1rem;
+  }
+  .btn-action {
+    width: 100%;
+    margin-bottom: 5px;
+    box-sizing: border-box;
+  }
+  .completion-form button {
+    width: 100%;
+    box-sizing: border-box;
   }
 }

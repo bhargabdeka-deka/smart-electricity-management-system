@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 import './KycReviewPanel.css';
 
 const KycReviewPanel = () => {
@@ -35,10 +36,10 @@ const KycReviewPanel = () => {
       await axios.put(`/api/admin/kyc-status/${kycId}`, { status, remarks }, {
         headers: { Authorization: `Bearer ${user.token}` }
       });
-      alert(`✅ KYC ${status} successfully!`);
+      toast.success(`KYC ${status} successfully!`);
       fetchKycSubmissions();
     } catch (err) {
-      alert('⚠️ Failed to update KYC status.');
+      toast.error('Failed to update KYC status. Server error occurred.');
       console.error(err);
     }
   };
