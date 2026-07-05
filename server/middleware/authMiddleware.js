@@ -39,6 +39,14 @@ exports.isSuperAdmin = (req, res, next) => {
   next();
 };
 
+// 🔧 Field Engineer Check
+exports.isEngineer = (req, res, next) => {
+  if (req.user.role !== 'engineer') {
+    return res.status(403).json({ message: 'Field engineer access only' });
+  }
+  next();
+};
+
 // 🧩 Specific Permission Check
 exports.hasPermission = (permission) => {
   return (req, res, next) => {

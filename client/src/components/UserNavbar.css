@@ -13,7 +13,7 @@
   color: #ffffff;
   text-decoration: none;
   margin-right: 20px;
-  font-weight: 500;
+  font-weight: var(--weight-medium);
 }
 
 .navbar-left a:hover {
@@ -45,7 +45,7 @@
 
 .profile-dropdown p {
   margin: 4px 0;
-  font-size: 14px;
+  font-size: var(--text-small);
 }
 
 .profile-dropdown button {

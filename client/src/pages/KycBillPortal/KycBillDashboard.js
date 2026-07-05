@@ -32,7 +32,7 @@ export default function KycBillDashboard() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const [kycRes, billRes] = await Promise.all([
+        const [kycRes, ] = await Promise.all([             //billRes
           fetch(`/api/users/kyc-status?meter=${meterNumber}`, {
             headers: { Authorization: `Bearer ${token}` }
           }),
@@ -46,10 +46,10 @@ export default function KycBillDashboard() {
           setKycInfo(kycData);
         }
 
-        if (billRes.ok) {
-          const billData = await billRes.json();
-          setBills(billData);
-        }
+        // if (billRes.ok) {
+        //   const billData = await billRes.json();
+        //   setBills(billData);
+        // }
       } catch (err) {
         console.error('❌ Data fetch error:', err);
       } finally {

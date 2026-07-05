@@ -38,7 +38,7 @@ const userSchema = new mongoose.Schema({
   // 🔐 Role & Zone
   role: {
     type: String,
-    enum: ['user', 'admin', 'superadmin'],
+    enum: ['user', 'admin', 'engineer', 'superadmin'],
     default: 'user'
   },
   zone: {

@@ -33,6 +33,8 @@ const AdminNavbar = () => {
     { label: 'Dashboard', path: '/admin' },
     { label: 'Connections', path: '/admin/connections' },
     { label: 'Helpdesk', path: '/admin/helpdesk', badge: pendingCount },
+    { label: 'KYC', path: '/admin/kyc-review' },
+
   ];
 
   return (

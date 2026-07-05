@@ -42,6 +42,7 @@ const adminRoutes      = require('./routes/AdminRoutes');
 const superRoutes      = require('./routes/SuperRoutes');
 const kycRoutes        = require('./routes/KycRoutes');
 const helpdeskRoutes   = require('./routes/HelpdeskRoutes');
+const engineerRoutes   = require('./routes/EngineerRoutes');
 
 // 🧪 Debug Logs
 console.log('🧪 Routes Initialized:', {
@@ -58,6 +59,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/superadmin', superRoutes);
 app.use('/api/users', kycRoutes);
 app.use('/api/users', helpdeskRoutes);
+app.use('/api/engineer', engineerRoutes);
 
 // 🩺 Health Check
 app.get('/', (_req, res) => {

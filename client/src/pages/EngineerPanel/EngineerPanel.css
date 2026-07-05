@@ -1,0 +1,232 @@
+/* ───────────────────────────────────────────────
+   EngineerPanel.css  —  Shared styles for the
+   Engineer Dashboard & My Jobs page.
+   Mirrors the existing AdminDashboard aesthetic.
+─────────────────────────────────────────────── */
+
+/* ── Shared layout ── */
+.engineer-container {
+  padding: 2rem;
+  
+  background-color: #f5f8fc;
+  min-height: 100vh;
+}
+
+.engineer-header {
+  margin-bottom: 2rem;
+}
+
+.engineer-header h2 {
+  font-size: var(--text-h2);
+  color: #1e1e1e;
+  margin-bottom: 0.3rem;
+}
+
+.engineer-header p {
+  font-size: var(--text-body-regular);
+  color: #555;
+}
+
+/* ── Stat Cards (Dashboard) ── */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.stat-card {
+  background: #ffffff;
+  border: 1px solid #dde3ea;
+  border-radius: 10px;
+  padding: 1.4rem 1.6rem;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.stat-card .stat-label {
+  font-size: var(--text-caption);
+  color: #777;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-card .stat-value {
+  font-size: var(--text-h2);
+  font-weight: var(--weight-bold);
+  color: #0070c0;
+}
+
+/* ── Quick Links (Dashboard) ── */
+.engineer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+.engineer-card {
+  background: #ffffff;
+  border: 1px solid #dde3ea;
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  text-decoration: none;
+  color: #212529;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.engineer-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.09);
+}
+
+.engineer-card h3 {
+  font-size: var(--text-h4);
+  margin-bottom: 0.5rem;
+  color: #0070c0;
+}
+
+.engineer-card p {
+  font-size: var(--text-small);
+  color: #555;
+  flex-grow: 1;
+}
+
+.engineer-action {
+  font-weight: var(--weight-semibold);
+  color: #0070c0;
+  margin-top: 1rem;
+  text-align: right;
+}
+
+/* ── Job Cards (My Jobs) ── */
+.jobs-container {
+  padding: 2rem;
+  
+  background-color: #f5f8fc;
+  min-height: 100vh;
+}
+
+.jobs-container h2 {
+  font-size: var(--text-h2);
+  color: #1e1e1e;
+  margin-bottom: 1.5rem;
+}
+
+.job-card {
+  background: #ffffff;
+  border: 1px solid #dde3ea;
+  border-radius: 10px;
+  padding: 1.4rem 1.6rem;
+  margin-bottom: 1.2rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  transition: transform 0.15s ease;
+}
+
+.job-card:hover {
+  transform: translateY(-2px);
+}
+
+.job-card p {
+  margin: 0.25rem 0;
+  font-size: var(--text-small);
+  color: #333;
+}
+
+/* ── Status Badge ── */
+.job-status {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.82rem;
+  font-weight: var(--weight-semibold);
+}
+
+.status-assigned   { background: #e3f2fd; color: #0070c0; }
+.status-scheduled  { background: #fff3e0; color: #e65100; }
+.status-inprogress { background: #fce4ec; color: #b71c1c; }
+.status-installed  { background: #e8f5e9; color: #1b5e20; }
+.status-completed  { background: #e8f5e9; color: #1b5e20; }
+
+/* ── Action Buttons ── */
+.job-actions {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.btn-action {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: var(--weight-semibold);
+  font-size: 0.88rem;
+  transition: background 0.2s;
+}
+
+.btn-accept    { background: #0070c0; color: #fff; }
+.btn-accept:hover { background: #005a9e; }
+
+.btn-schedule  { background: #ff9800; color: #fff; }
+.btn-schedule:hover { background: #e65100; }
+
+.btn-start     { background: #dc3545; color: #fff; }
+.btn-start:hover { background: #b02a37; }
+
+.btn-complete  { background: #28a745; color: #fff; }
+.btn-complete:hover { background: #1e7e34; }
+
+.btn-action:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* ── Completion Form (inline) ── */
+.completion-form {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #f0f7ff;
+  border: 1px solid #cce0ff;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.completion-form h4 {
+  margin: 0 0 0.4rem;
+  color: #0070c0;
+  font-size: var(--text-body-regular);
+}
+
+.completion-form input,
+.completion-form textarea {
+  padding: 7px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: var(--text-small);
+  
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.completion-form textarea {
+  resize: vertical;
+  min-height: 70px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .stat-grid,
+  .engineer-grid {
+    grid-template-columns: 1fr;
+  }
+}

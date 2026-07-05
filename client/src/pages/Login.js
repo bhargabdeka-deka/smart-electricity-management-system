@@ -52,6 +52,8 @@ function Login() {
           window.location.href = '/admin';
         } else if (role === 'user') {
           window.location.href = '/homepage';
+        } else if (role === 'engineer') {
+          window.location.href = '/engineer';
         } else {
           console.warn('⚠️ Unknown role:', role);
           window.location.href = '/login';

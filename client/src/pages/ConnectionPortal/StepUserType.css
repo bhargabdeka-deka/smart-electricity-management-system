@@ -12,8 +12,8 @@
 .step-user-type label {
   display: flex;
   flex-direction: column;
-  font-weight: 500;
-  font-size: 0.95rem;
+  font-weight: var(--weight-medium);
+  font-size: var(--text-small);
   color: #333;
   gap: 6px;
 }
@@ -23,7 +23,7 @@
   padding: 12px;
   border: 1px solid #ccc;
   border-radius: 6px;
-  font-size: 1rem;
+  font-size: var(--text-body-regular);
   transition: border-color 0.2s ease;
 }
 
@@ -42,7 +42,7 @@
   border-radius: 6px;
   cursor: pointer;
   align-self: flex-end;
-  font-size: 1rem;
+  font-size: var(--text-body-regular);
   transition: background-color 0.3s;
 }
 

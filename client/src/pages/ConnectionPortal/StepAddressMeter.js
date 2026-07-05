@@ -1,4 +1,5 @@
 // src/ConnectionPortal/StepAddressMeter.js
+
 import React from 'react';
 import './StepAddressMeter.css';
 
@@ -15,6 +16,7 @@ export default function StepAddressMeter({ formData, setFormData, next, prev }) 
         placeholder="🏠 Address"
         required
       />
+
       <input
         name="pincode"
         value={formData.pincode || ''}
@@ -22,6 +24,7 @@ export default function StepAddressMeter({ formData, setFormData, next, prev }) 
         placeholder="📮 Pincode"
         required
       />
+
       <input
         name="load"
         type="number"
@@ -30,28 +33,35 @@ export default function StepAddressMeter({ formData, setFormData, next, prev }) 
         placeholder="⚡ Load (kW)"
         required
       />
+
       <select
         name="meterType"
         value={formData.meterType || ''}
         onChange={handleChange}
         required
       >
-        
         <option value="">Select Meter</option>
         <option value="Single Phase">Single Phase</option>
         <option value="Three Phase">Three Phase</option>
       </select>
 
-       <input
-        name="visitDate"
-        type="date"
-        value={formData.visitDate || ''}
-        onChange={handleChange}
-        placeholder="🗓️ Visit Date"
-        required
-        /> 
-        
-      {/* ✅ Added Meter Number Field */}
+      {/* Visit Date Field with Placeholder Overlay */}
+      <div className="date-input-wrapper">
+        <input
+          name="visitDate"
+          type="date"
+          className="date-input"
+          value={formData.visitDate || ''}
+          onChange={handleChange}
+          required
+        />
+        {!formData.visitDate && (
+          <span className="date-input-placeholder">
+            dd-mm-yyyy (Visit Date)
+          </span>
+        )}
+      </div>
+
       <input
         name="meterNumber"
         type="text"

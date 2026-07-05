@@ -5,7 +5,7 @@
   background-color: #f8f9fa;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  font-family: 'Segoe UI', sans-serif;
+  
   text-align: center;
 }
 
@@ -23,7 +23,7 @@
 .signup-container input,
 .signup-container select {
   padding: 0.75rem;
-  font-size: 1rem;
+  font-size: var(--text-body-regular);
   border: 1px solid #ccc;
   border-radius: 8px;
   background-color: #fff;
@@ -38,12 +38,12 @@
 
 .signup-container button {
   padding: 0.8rem;
-  font-size: 1rem;
+  font-size: var(--text-body-regular);
   background-color: #007bff;
   color: white;
   border: none;
   border-radius: 8px;
-  font-weight: bold;
+  font-weight: var(--weight-semibold);
   cursor: pointer;
   transition: background 0.3s ease;
 }
@@ -54,13 +54,13 @@
 
 .signup-container p {
   margin-top: 1rem;
-  font-size: 0.95rem;
+  font-size: var(--text-small);
   color: #333;
 }
 
 .signup-container span {
   color: #007bff;
   cursor: pointer;
-  font-weight: bold;
+  font-weight: var(--weight-semibold);
   text-decoration: underline;
 }

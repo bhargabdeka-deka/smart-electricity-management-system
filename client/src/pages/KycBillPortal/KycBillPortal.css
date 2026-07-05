@@ -3,7 +3,7 @@
   max-width: 960px;
   margin: 2rem auto;
   padding: 1rem;
-  font-family: 'Segoe UI', sans-serif;
+  
 }
 
 /* Card sections */
@@ -18,16 +18,16 @@
 /* Loader */
 .loading {
   text-align: center;
-  font-weight: bold;
+  font-weight: var(--weight-semibold);
   padding: 2rem;
-  font-size: 1.2rem;
+  font-size: var(--text-h4);
 }
 
 /* Refresh button */
 .refresh-button {
   margin-top: 1rem;
   padding: 0.5rem 1rem;
-  font-weight: bold;
+  font-weight: var(--weight-semibold);
   background-color: #007aff;
   color: #fff;
   border: none;
@@ -46,17 +46,17 @@
   gap: 0.5rem;
 }
 .meter-gate label {
-  font-weight: 500;
+  font-weight: var(--weight-medium);
 }
 .meter-gate input {
   padding: 0.6rem;
-  font-size: 1rem;
+  font-size: var(--text-body-regular);
   border: 1px solid #ccc;
   border-radius: 6px;
 }
 .meter-gate button {
   padding: 0.5rem 1rem;
-  font-weight: bold;
+  font-weight: var(--weight-semibold);
   background-color: #007aff;
   color: white;
   border: none;
@@ -69,7 +69,7 @@
 }
 .meter-error {
   color: #dc3545;
-  font-size: 0.9rem;
+  font-size: var(--text-small);
 }
 
 /* Status badge */
@@ -78,8 +78,8 @@
   padding: 0.4rem 0.8rem;
   border-radius: 6px;
   text-transform: uppercase;
-  font-weight: 600;
-  font-size: 0.9rem;
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-small);
 }
 .badge.approved {
   background-color: #28a745;
@@ -115,14 +115,14 @@
   margin-top: 1rem;
 }
 .kyc-upload label {
-  font-weight: 500;
+  font-weight: var(--weight-medium);
 }
 .kyc-upload input[type="file"] {
   padding: 0.4rem;
 }
 .kyc-upload small {
   display: block;
-  font-size: 0.85rem;
+  font-size: var(--text-caption);
   color: #555;
   margin-top: 0.2rem;
 }
@@ -139,7 +139,7 @@
   background-color: #005bb5;
 }
 .upload-message {
-  font-weight: bold;
+  font-weight: var(--weight-semibold);
   margin-top: 0.5rem;
   color: #007aff;
 }
@@ -157,7 +157,7 @@
 }
 .bill-viewer th {
   background-color: #f0f0f0;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
 }
 .bill-action-button {
   padding: 0.4rem 0.7rem;
@@ -165,7 +165,7 @@
   border-radius: 6px;
   background-color: #007aff;
   color: white;
-  font-weight: 500;
+  font-weight: var(--weight-medium);
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
@@ -185,7 +185,7 @@
 }
 .download-summery button {
   padding: 0.5rem 1rem;
-  font-weight: bold;
+  font-weight: var(--weight-semibold);
   background-color: #007aff;
   color: white;
   border: none;
@@ -199,9 +199,9 @@
 /* Blocked message */
 .portal-blocked {
   text-align: center;
-  font-weight: 500;
+  font-weight: var(--weight-medium);
   color: #dc3545;
-  font-size: 1rem;
+  font-size: var(--text-body-regular);
   padding: 1rem;
 }
 
@@ -211,7 +211,7 @@
   padding: 1rem;
   border-radius: 8px;
   margin-top: 1rem;
-  font-weight: 500;
+  font-weight: var(--weight-medium);
 }
 
 /* ✅ Enhanced KYC status visuals */
@@ -252,7 +252,7 @@
   border-left: 4px solid orange;
   margin-bottom: 1rem;
   border-radius: 8px;
-  font-weight: 500;
+  font-weight: var(--weight-medium);
 }
 
 /* ✅ Inline badge inside status bar */
@@ -263,6 +263,6 @@
   background-color: #007aff;
   color: white;
   border-radius: 6px;
-  font-weight: 600;
-  font-size: 0.95rem;
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-small);
 }

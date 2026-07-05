@@ -30,7 +30,15 @@ import PromoteUser from './pages/SuperPanel/PromoteUser';
 import UserNavbar from './components/UserNavbar';
 import AdminNavbar from './components/AdminNavbar';
 import SuperNavbar from './components/SuperNavbar';
+import EngineerNavbar from './components/EngineerNavbar';
 import ConnectionStepper from './pages/ConnectionPortal/ConnectionStepper';
+
+// 🔧 Engineer Panel Pages
+import EngineerDashboard from './pages/EngineerPanel/EngineerDashboard';
+import EngineerJobs from './pages/EngineerPanel/EngineerJobs';
+
+// ℹ️ Informational Pages
+import { About, Contact, Privacy, Terms, Accessibility } from './pages/InfoPages';
 
 function AppWrapper() {
   const location = useLocation();
@@ -63,12 +71,17 @@ function AppWrapper() {
       {showNavbar && ['admin', 'superadmin'].includes(user.role) && (
         user.role === 'admin' ? <AdminNavbar /> : <SuperNavbar />
       )}
+      {showNavbar && user.role === 'engineer' && <EngineerNavbar />}
 
       <Routes>
-        {/* Public Routes */}
         <Route path="/" element={<WelcomePage />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/accessibility" element={<Accessibility />} />
 
         {/* User-only Pages */}
         <Route
@@ -184,6 +197,28 @@ function AppWrapper() {
           element={
             user?.token && user.role === 'superadmin' ? (
               <PromoteUser />
+            ) : (
+              <Navigate to="/" />
+            )
+          }
+        />
+
+        {/* 🔧 Engineer Routes */}
+        <Route
+          path="/engineer"
+          element={
+            user?.token && user.role === 'engineer' ? (
+              <EngineerDashboard />
+            ) : (
+              <Navigate to="/" />
+            )
+          }
+        />
+        <Route
+          path="/engineer/jobs"
+          element={
+            user?.token && user.role === 'engineer' ? (
+              <EngineerJobs />
             ) : (
               <Navigate to="/" />
             )

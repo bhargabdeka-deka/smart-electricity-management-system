@@ -1,0 +1,3 @@
+/* EngineerNavbar reuses AdminNavbar.css styles entirely.
+   This file exists only to satisfy the import statement. */
+@import '../components/AdminNavbar.css';

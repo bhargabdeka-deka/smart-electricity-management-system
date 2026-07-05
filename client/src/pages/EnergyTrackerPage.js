@@ -140,7 +140,7 @@ export default function EnergyTrackerPage() {
           </div>
         </>
       ) : (
-        <p className="pending-note">📊 No data to display</p>
+        <p className="pending-note">📊 Enter your meter number to display the usages </p>
       )}
     </div>
   );

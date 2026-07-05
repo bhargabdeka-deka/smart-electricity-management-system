@@ -53,7 +53,12 @@ const connectionRequestSchema = new mongoose.Schema({
 
   status: {
     type: String,
-    enum: ['Pending', 'Under Review', 'Approved', 'Rejected'],
+    enum: [
+      'Pending', 'Under Review', 'Approved', 'Rejected',
+      'Submitted', 'Documents Verified', 'Engineer Assigned',
+      'Visit Scheduled', 'Installation In Progress',
+      'Meter Installed', 'Completed'
+    ],
     default: 'Pending'
   },
 
@@ -83,6 +88,49 @@ const connectionRequestSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now
+  },
+
+  assignedEngineer: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  
+  assignedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  
+  assignmentDate: {
+    type: Date
+  },
+  
+  visitDate: {
+    type: Date
+  },
+  
+  installationDate: {
+    type: Date
+  },
+  
+  completionDate: {
+    type: Date
+  },
+  
+  meterSerialNumber: {
+    type: String,
+    trim: true
+  },
+  
+  installationRemarks: {
+    type: String
+  },
+  
+  installationPhoto: {
+    type: String
+  },
+  
+  customerSignature: {
+    type: String
   }
 });
 

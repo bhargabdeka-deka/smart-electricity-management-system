@@ -1,4 +1,5 @@
-/* StepAddressMeter.css */
+/* src/ConnectionPortal/StepAddressMeter.css */
+
 .step-address-meter {
   display: flex;
   flex-direction: column;
@@ -14,7 +15,7 @@
   padding: 12px;
   border: 1px solid #ccc;
   border-radius: 6px;
-  font-size: 1rem;
+  font-size: var(--text-body-regular);
   transition: border 0.2s ease;
 }
 
@@ -37,11 +38,35 @@
   padding: 12px 24px;
   border: none;
   border-radius: 6px;
-  font-size: 0.95rem;
+  font-size: var(--text-small);
   cursor: pointer;
   transition: background 0.3s;
 }
 
 .step-buttons button:hover {
   background-color: #4500b5;
+}
+
+/* ─────────────────────────────── */
+/* Visit Date Picker Overlay      */
+
+.date-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.date-input {
+  width: 100%;
+  padding-left: 12px;
+  box-sizing: border-box;
+}
+
+.date-input-placeholder {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  transform: translateY(-50%);
+  color: #999;
+  font-size: var(--text-small);
+  pointer-events: none;
 }

@@ -8,11 +8,13 @@ const { verifyToken, isAdmin } = require('../middleware/authMiddleware');
 const ConnectionRequest    = require('../models/ConnectionRequest');
 const HelpdeskTicket       = require('../models/HelpdeskTicket');
 
-// Import all admin controllers, including the populated tickets fetch
+// Import all admin controllers
 const {
   fetchHelpdeskTickets,
   fetchKycSubmissions,
-  updateKycStatus
+  updateKycStatus,
+  fetchEngineers,
+  assignEngineer
 } = require('../controllers/adminController');
 
 /**
@@ -154,5 +156,17 @@ router.put(
   isAdmin,
   updateKycStatus
 );
+
+/**
+ * GET /api/admin/engineers
+ * Fetch all registered field engineers
+ */
+router.get('/engineers', verifyToken, isAdmin, fetchEngineers);
+
+/**
+ * PUT /api/admin/applications/:id/assign
+ * Assign a field engineer to an approved application
+ */
+router.put('/applications/:id/assign', verifyToken, isAdmin, assignEngineer);
 
 module.exports = router;

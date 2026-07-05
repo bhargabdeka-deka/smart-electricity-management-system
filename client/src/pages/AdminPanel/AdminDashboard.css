@@ -1,6 +1,6 @@
 .admin-dashboard-container {
   padding: 2rem;
-  font-family: 'Segoe UI', sans-serif;
+  
   background-color: #f5f8fc;
   min-height: 100vh;
 }
@@ -10,13 +10,13 @@
 }
 
 .admin-header h2 {
-  font-size: 2rem;
+  font-size: var(--text-h2);
   color: #1e1e1e;
   margin-bottom: 0.5rem;
 }
 
 .admin-header p {
-  font-size: 1rem;
+  font-size: var(--text-body-regular);
   color: #555;
 }
 
@@ -46,19 +46,19 @@
 }
 
 .admin-card h3 {
-  font-size: 1.25rem;
+  font-size: var(--text-h4);
   margin-bottom: 0.5rem;
   color: #0078d4;
 }
 
 .admin-card p {
-  font-size: 0.95rem;
+  font-size: var(--text-small);
   color: #555;
   flex-grow: 1;
 }
 
 .admin-action {
-  font-weight: bold;
+  font-weight: var(--weight-semibold);
   color: #0078d4;
   margin-top: 1rem;
   text-align: right;

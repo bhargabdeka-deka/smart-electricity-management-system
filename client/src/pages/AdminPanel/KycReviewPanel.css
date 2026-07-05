@@ -2,7 +2,7 @@
   padding: 2rem;
   background-color: #f4f7fa;
   min-height: 100vh;
-  font-family: 'Segoe UI', sans-serif;
+  
 }
 
 .kyc-panel-container h2 {
@@ -27,7 +27,7 @@
 .kyc-files a {
   margin-left: 8px;
   color: #0078d4;
-  font-weight: bold;
+  font-weight: var(--weight-semibold);
   text-decoration: none;
 }
 
@@ -37,17 +37,17 @@
 
 .status-Approved {
   color: green;
-  font-weight: bold;
+  font-weight: var(--weight-semibold);
 }
 
 .status-Rejected {
   color: red;
-  font-weight: bold;
+  font-weight: var(--weight-semibold);
 }
 
 .status-Pending {
   color: orange;
-  font-weight: bold;
+  font-weight: var(--weight-semibold);
 }
 
 .kyc-actions textarea {
@@ -58,7 +58,7 @@
   border: 1px solid #ccc;
   border-radius: 6px;
   resize: vertical;
-  font-size: 0.95rem;
+  font-size: var(--text-small);
 }
 
 .kyc-buttons {
@@ -72,7 +72,7 @@
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  font-weight: bold;
+  font-weight: var(--weight-semibold);
   color: #fff;
   transition: background-color 0.3s ease;
 }

@@ -19,17 +19,17 @@
 }
 
 .admin-logo {
-  font-size: 1.5rem;
-  font-weight: bold;
+  font-size: var(--text-h3);
+  font-weight: var(--weight-semibold);
   letter-spacing: 1px;
 }
 
 .admin-user-info {
-  font-size: 0.85rem;
+  font-size: var(--text-caption);
 }
 
 .server-status {
-  font-size: 0.85rem;
+  font-size: var(--text-caption);
 }
 .online { color: #28a745; }
 .offline { color: #dc3545; }
@@ -44,7 +44,7 @@
 .admin-nav-links a {
   color: white;
   text-decoration: none;
-  font-weight: 500;
+  font-weight: var(--weight-medium);
   position: relative;
   transition: color 0.2s ease-in-out;
 }
@@ -58,7 +58,7 @@
   background-color: #ff9800;
   border-radius: 50%;
   padding: 2px 6px;
-  font-size: 0.75rem;
+  font-size: var(--text-caption);
   color: white;
   margin-left: 4px;
 }
@@ -70,7 +70,7 @@
   padding: 0.5rem 0.9rem;
   border-radius: 6px;
   cursor: pointer;
-  font-weight: bold;
+  font-weight: var(--weight-semibold);
 }
 
 .logout-btn:hover {
