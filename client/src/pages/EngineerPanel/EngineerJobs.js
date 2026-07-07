@@ -1,11 +1,9 @@
-// src/pages/EngineerPanel/EngineerJobs.js
-
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import './EngineerPanel.css';
 
-// Map status string → CSS class
+// Helper: Status badge colors
 const statusClass = (status) => {
   if (!status) return '';
   const s = status.toLowerCase();
@@ -17,17 +15,62 @@ const statusClass = (status) => {
   return '';
 };
 
+// Helper: Priority Calculation
+const getPriority = (visitDate) => {
+  if (!visitDate) return { label: 'NORMAL', class: 'priority-normal' };
+  
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const vDate = new Date(visitDate);
+  vDate.setHours(0, 0, 0, 0);
+  
+  const diffTime = vDate - today;
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 0) return { label: 'URGENT', class: 'priority-urgent' };
+  if (diffDays === 1) return { label: 'HIGH', class: 'priority-high' };
+  if (diffDays > 1 && diffDays <= 3) return { label: 'MEDIUM', class: 'priority-medium' };
+  return { label: 'NORMAL', class: 'priority-normal' };
+};
+
+// Component: Visual Timeline
+const JobTimeline = ({ status }) => {
+  const steps = ['Assigned', 'Accepted', 'Inspection', 'Installation', 'Completed'];
+  
+  let currentIndex = 0;
+  if (status === 'Engineer Assigned') currentIndex = 0;
+  else if (status === 'Visit Scheduled') currentIndex = 1;
+  else if (status === 'Installation In Progress') currentIndex = 3;
+  else if (status === 'Meter Installed' || status === 'Completed') currentIndex = 4;
+  else currentIndex = 0; // Default or unknown
+
+  return (
+    <div className="job-timeline">
+      {steps.map((step, idx) => (
+        <React.Fragment key={idx}>
+          <div className={`timeline-step ${idx <= currentIndex ? 'active' : ''}`}>
+            <div className="timeline-dot"></div>
+            <span className="timeline-label">{step}</span>
+          </div>
+          {idx < steps.length - 1 && (
+            <div className={`timeline-line ${idx < currentIndex ? 'active' : ''}`}></div>
+          )}
+        </React.Fragment>
+      ))}
+    </div>
+  );
+};
+
 export default function EngineerJobs() {
   const stored = JSON.parse(localStorage.getItem('user')) || {};
   const { token } = stored;
 
   const [jobs, setJobs]             = useState([]);
   const [loading, setLoading]       = useState(true);
-  const [busy, setBusy]             = useState({});      // per-job loading
-  // completion form state per job: { [jobId]: { open, meterSerial, installDate, remarks } }
+  const [busy, setBusy]             = useState({});
   const [formState, setFormState]   = useState({});
 
-  // ─── Fetch jobs ────────────────────────────────────────────────────────────
   const fetchJobs = async () => {
     try {
       const res = await axios.get('/api/engineer/jobs', {
@@ -46,7 +89,6 @@ export default function EngineerJobs() {
     // eslint-disable-next-line
   }, [token]);
 
-  // ─── Generic status update ─────────────────────────────────────────────────
   const updateStatus = async (jobId, status, extra = {}) => {
     setBusy(prev => ({ ...prev, [jobId]: true }));
     try {
@@ -64,7 +106,6 @@ export default function EngineerJobs() {
     }
   };
 
-  // ─── Completion form helpers ───────────────────────────────────────────────
   const openForm = (jobId) =>
     setFormState(prev => ({
       ...prev,
@@ -88,151 +129,182 @@ export default function EngineerJobs() {
       installationRemarks: f.remarks
     });
 
-    // close the form after submission
     setFormState(prev => ({ ...prev, [jobId]: { open: false } }));
   };
 
-  // ─── Render ────────────────────────────────────────────────────────────────
   return (
-    <div className="jobs-container">
-      <h2>📋 My Assigned Jobs</h2>
+    <div className="jobs-container cr-admin-container">
+      <div className="cr-top-header">
+        <div>
+          <h2>📋 My Assigned Work Orders</h2>
+          <p>Manage and update your assigned connection jobs.</p>
+        </div>
+      </div>
 
       {loading ? (
-        <p>🔄 Loading jobs...</p>
+        <div className="eng-empty">🔄 Loading work orders...</div>
       ) : jobs.length === 0 ? (
-        <p>📭 No jobs assigned to you yet.</p>
+        <div className="eng-empty">📭 No work orders assigned to you yet.</div>
       ) : (
-        jobs.map(job => {
-          const f       = formState[job._id] || {};
-          const isBusy  = !!busy[job._id];
-          const status  = job.status || '';
+        <div className="work-order-list">
+          {jobs.map(job => {
+            const f       = formState[job._id] || {};
+            const isBusy  = !!busy[job._id];
+            const status  = job.status || '';
+            const priority = getPriority(job.visitDate);
 
-          return (
-            <div key={job._id} className="job-card">
-              {/* ── Job Info ── */}
-              <p>
-                <strong>Application ID:</strong>{' '}
-                <code style={{ fontSize: '0.82rem' }}>{job._id}</code>
-              </p>
-              <p><strong>Customer Name:</strong>   {job.fullName}</p>
-              <p><strong>Address:</strong>          {job.address}, {job.pincode}</p>
-              <p><strong>Phone:</strong>            {job.contact}</p>
-              <p><strong>Meter Type:</strong>       {job.meterType}</p>
-              <p><strong>Connection Load:</strong>  {job.load} kW</p>
-              <p>
-                <strong>Status:</strong>{' '}
-                <span className={`job-status ${statusClass(status)}`}>{status}</span>
-              </p>
-              <p>
-                <strong>Assigned On:</strong>{' '}
-                {job.assignmentDate ? job.assignmentDate.slice(0, 10) : '—'}
-              </p>
-              {job.visitDate && (
-                <p><strong>Scheduled Visit:</strong> {job.visitDate.slice(0, 10)}</p>
-              )}
-              {job.meterSerialNumber && (
-                <p><strong>Meter Serial:</strong> {job.meterSerialNumber}</p>
-              )}
-              {job.installationDate && (
-                <p><strong>Installed On:</strong> {job.installationDate.slice(0, 10)}</p>
-              )}
-              {job.installationRemarks && (
-                <p><strong>Remarks:</strong> {job.installationRemarks}</p>
-              )}
-
-              {/* ── Action Buttons ── */}
-              <div className="job-actions">
-                {/* Accept Job — from "Engineer Assigned" */}
-                {status === 'Engineer Assigned' && (
-                  <button
-                    className="btn-action btn-accept"
-                    disabled={isBusy}
-                    onClick={() => updateStatus(job._id, 'Visit Scheduled')}
-                  >
-                    ✅ Accept Job
-                  </button>
-                )}
-
-                {/* Schedule Visit — from "Visit Scheduled", let engineer set a date */}
-                {status === 'Visit Scheduled' && (
-                  <>
-                    <input
-                      type="date"
-                      title="Pick visit date"
-                      style={{ padding: '5px 8px', borderRadius: '6px', border: '1px solid #ccc' }}
-                      onChange={e => setField(job._id, 'visitDate', e.target.value)}
-                      value={f.visitDate || ''}
-                    />
-                    <button
-                      className="btn-action btn-schedule"
-                      disabled={isBusy || !f.visitDate}
-                      onClick={() =>
-                        updateStatus(job._id, 'Installation In Progress', {
-                          visitDate: f.visitDate
-                        })
-                      }
-                    >
-                      🗓 Confirm Visit & Start
-                    </button>
-                  </>
-                )}
-
-                {/* Complete Installation — from "Installation In Progress" */}
-                {status === 'Installation In Progress' && !f.open && (
-                  <button
-                    className="btn-action btn-complete"
-                    disabled={isBusy}
-                    onClick={() => openForm(job._id)}
-                  >
-                    🔧 Complete Installation
-                  </button>
-                )}
-              </div>
-
-              {/* ── Completion Form (inline) ── */}
-              {f.open && (
-                <div className="completion-form">
-                  <h4>📝 Installation Details</h4>
-                  <input
-                    type="text"
-                    placeholder="Meter Serial Number *"
-                    value={f.meterSerial || ''}
-                    onChange={e => setField(job._id, 'meterSerial', e.target.value)}
-                  />
-                  <input
-                    type="date"
-                    title="Installation Date"
-                    value={f.installDate || ''}
-                    onChange={e => setField(job._id, 'installDate', e.target.value)}
-                  />
-                  <textarea
-                    placeholder="Installation remarks (optional)"
-                    value={f.remarks || ''}
-                    onChange={e => setField(job._id, 'remarks', e.target.value)}
-                  />
-                  <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <button
-                      className="btn-action btn-complete"
-                      disabled={isBusy}
-                      onClick={() => submitCompletion(job._id)}
-                    >
-                      {isBusy ? '⏳ Saving…' : '✅ Submit & Mark Installed'}
-                    </button>
-                    <button
-                      className="btn-action"
-                      style={{ background: '#6c757d', color: '#fff' }}
-                      onClick={() =>
-                        setFormState(prev => ({ ...prev, [job._id]: { open: false } }))
-                      }
-                    >
-                      Cancel
-                    </button>
+            return (
+              <div key={job._id} className="work-order-card">
+                {/* ── Card Header ── */}
+                <div className="wo-header">
+                  <div className="wo-header-left">
+                    <span className="wo-id">#{job.applicationId || job._id.substring(0, 8).toUpperCase()}</span>
+                    <span className={`job-status ${statusClass(status)}`}>{status}</span>
+                  </div>
+                  <div className="wo-header-right">
+                    <span className={`wo-priority ${priority.class}`}>{priority.label}</span>
                   </div>
                 </div>
-              )}
-            </div>
-          );
-        })
+
+                {/* ── Timeline ── */}
+                <JobTimeline status={status} />
+
+                {/* ── Card Body (Customer & Job Details) ── */}
+                <div className="wo-body">
+                  <div className="wo-grid">
+                    <div className="wo-info-group">
+                      <span className="wo-label">Customer Name</span>
+                      <strong className="wo-value">{job.fullName}</strong>
+                    </div>
+                    <div className="wo-info-group">
+                      <span className="wo-label">Contact Number</span>
+                      <strong className="wo-value">{job.contact}</strong>
+                    </div>
+                    <div className="wo-info-group">
+                      <span className="wo-label">Meter & Load</span>
+                      <strong className="wo-value">{job.meterType} — {job.load} kW</strong>
+                    </div>
+                    <div className="wo-info-group">
+                      <span className="wo-label">Target Visit Date</span>
+                      <strong className="wo-value">
+                        {job.visitDate ? new Date(job.visitDate).toLocaleDateString() : 'Not Scheduled'}
+                      </strong>
+                    </div>
+                  </div>
+
+                  <div className="wo-address">
+                    <span className="wo-label">Service Address</span>
+                    <p className="wo-value">{job.address}, {job.pincode}</p>
+                  </div>
+
+                  {job.assignmentRemarks && (
+                    <div className="wo-remarks">
+                      <strong>Admin Remarks:</strong> {job.assignmentRemarks}
+                    </div>
+                  )}
+                  
+                  {job.installationRemarks && (
+                    <div className="wo-remarks" style={{ borderLeftColor: '#10B981' }}>
+                      <strong>Install Remarks:</strong> {job.installationRemarks}
+                    </div>
+                  )}
+                </div>
+
+                {/* ── Action Footer ── */}
+                <div className="wo-footer">
+                  {status === 'Engineer Assigned' && (
+                    <button
+                      className="wo-btn wo-btn-accept"
+                      disabled={isBusy}
+                      onClick={() => updateStatus(job._id, 'Visit Scheduled')}
+                    >
+                      {isBusy ? 'Processing...' : 'Accept Work Order'}
+                    </button>
+                  )}
+
+                  {status === 'Visit Scheduled' && (
+                    <div className="wo-schedule-action">
+                      <input
+                        type="date"
+                        className="wo-input"
+                        title="Pick visit date"
+                        onChange={e => setField(job._id, 'visitDate', e.target.value)}
+                        value={f.visitDate || ''}
+                      />
+                      <button
+                        className="wo-btn wo-btn-start"
+                        disabled={isBusy || !f.visitDate}
+                        onClick={() =>
+                          updateStatus(job._id, 'Installation In Progress', {
+                            visitDate: f.visitDate
+                          })
+                        }
+                      >
+                        Confirm Visit & Start
+                      </button>
+                    </div>
+                  )}
+
+                  {status === 'Installation In Progress' && !f.open && (
+                    <button
+                      className="wo-btn wo-btn-complete"
+                      disabled={isBusy}
+                      onClick={() => openForm(job._id)}
+                    >
+                      Complete Installation
+                    </button>
+                  )}
+
+                  {/* ── Inline Completion Form ── */}
+                  {f.open && (
+                    <div className="wo-completion-form">
+                      <h4>📝 Finalize Installation</h4>
+                      <div className="wo-form-grid">
+                        <input
+                          type="text"
+                          className="wo-input"
+                          placeholder="Meter Serial Number *"
+                          value={f.meterSerial || ''}
+                          onChange={e => setField(job._id, 'meterSerial', e.target.value)}
+                        />
+                        <input
+                          type="date"
+                          className="wo-input"
+                          title="Installation Date"
+                          value={f.installDate || ''}
+                          onChange={e => setField(job._id, 'installDate', e.target.value)}
+                        />
+                      </div>
+                      <textarea
+                        className="wo-input"
+                        placeholder="Installation remarks (optional)..."
+                        rows="3"
+                        value={f.remarks || ''}
+                        onChange={e => setField(job._id, 'remarks', e.target.value)}
+                        style={{ marginTop: '0.75rem', width: '100%', resize: 'vertical' }}
+                      />
+                      <div className="wo-form-actions">
+                        <button
+                          className="wo-btn wo-btn-complete"
+                          disabled={isBusy}
+                          onClick={() => submitCompletion(job._id)}
+                        >
+                          {isBusy ? 'Saving...' : 'Submit & Mark Completed'}
+                        </button>
+                        <button
+                          className="wo-btn wo-btn-secondary"
+                          onClick={() => setFormState(prev => ({ ...prev, [job._id]: { open: false } }))}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
       )}
     </div>
   );
