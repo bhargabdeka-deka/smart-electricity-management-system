@@ -34,6 +34,7 @@ const AdminNavbar = () => {
     { label: 'Connections', path: '/admin/connections' },
     { label: 'Helpdesk', path: '/admin/helpdesk', badge: pendingCount },
     { label: 'KYC', path: '/admin/kyc-review' },
+    { label: 'Reports', path: '/admin/reports' },
 
   ];
 

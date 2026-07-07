@@ -23,6 +23,8 @@ import AdminDashboard from './pages/AdminPanel/AdminDashboard';
 import ConnectionRequests from './pages/AdminPanel/ConnectionRequests';
 import HelpdeskTickets from './pages/AdminPanel/HelpdeskTicketsPage';
 import KycReviewPanel from './pages/AdminPanel/KycReviewPanel';
+import ApplicationDetailPage from './pages/AdminPanel/ApplicationDetailPage';
+import AdminReports from './pages/AdminPanel/AdminReports';
 
 // 👑 Super Admin Panel Pages
 import SuperAdminPanel from './pages/SuperPanel/SuperAdminPanel';
@@ -189,6 +191,26 @@ function AppWrapper() {
           element={
             user?.token && ['admin', 'superadmin'].includes(user.role) ? (
               <KycReviewPanel />
+            ) : (
+              <Navigate to="/" />
+            )
+          }
+        />
+        <Route
+          path="/admin/connections/:id"
+          element={
+            user?.token && ['admin', 'superadmin'].includes(user.role) ? (
+              <ApplicationDetailPage />
+            ) : (
+              <Navigate to="/" />
+            )
+          }
+        />
+        <Route
+          path="/admin/reports"
+          element={
+            user?.token && ['admin', 'superadmin'].includes(user.role) ? (
+              <AdminReports />
             ) : (
               <Navigate to="/" />
             )

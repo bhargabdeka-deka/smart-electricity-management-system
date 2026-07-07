@@ -2,7 +2,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #212529;
+  background-color: #0D47A1;
   padding: 0.75rem 2rem;
   color: white;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
@@ -43,15 +43,21 @@
 
 .admin-nav-links a {
   color: white;
+  opacity: 0.8;
   text-decoration: none;
   font-weight: var(--weight-medium);
   position: relative;
-  transition: color 0.2s ease-in-out;
+  transition: opacity 0.2s ease-in-out;
+  padding-bottom: 4px;
+}
+
+.admin-nav-links a:hover {
+  opacity: 1;
 }
 
 .admin-nav-links .active a {
-  border-bottom: 2px solid #ff9800;
-  color: #ff9800;
+  border-bottom: 2px solid white;
+  opacity: 1;
 }
 
 .badge {

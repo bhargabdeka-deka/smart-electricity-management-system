@@ -7,16 +7,60 @@ const { verifyToken } = require('../middleware/authMiddleware');
 const ConnectionRequest = require('../models/ConnectionRequest');
 const User = require('../models/User');
 
-const upload = multer({ storage: multer.memoryStorage() });
+const mongoose = require('mongoose');
+const path = require('path');
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/applications/');
+  },
+  filename: (req, file, cb) => {
+    const uniqueId = new mongoose.Types.ObjectId().toHexString();
+    const ext = path.extname(file.originalname);
+    cb(null, `${uniqueId}${file.fieldname}${ext}`);
+  }
+});
+
+const fileFilter = (req, file, cb) => {
+  const allowedExts = /pdf|jpg|jpeg|png/i;
+  const ext = path.extname(file.originalname).toLowerCase();
+  if (allowedExts.test(ext)) {
+    cb(null, true);
+  } else {
+    cb(new Error(`Invalid file type for ${file.originalname}. Only PDF, JPG, JPEG, and PNG are allowed.`));
+  }
+};
+
+const upload = multer({ 
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB limit
+  fileFilter 
+});
+
+const uploadMiddleware = upload.fields([
+  { name: 'aadhaar', maxCount: 1 },
+  { name: 'proof', maxCount: 1 }
+]);
+
+const handleUpload = (req, res, next) => {
+  uploadMiddleware(req, res, function (err) {
+    if (err instanceof multer.MulterError) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({ message: 'File is too large. Maximum size is 5MB.' });
+      }
+      return res.status(400).json({ message: err.message });
+    } else if (err) {
+      return res.status(400).json({ message: err.message });
+    }
+    next();
+  });
+};
 
 // POST – submit new connection request (unchanged)
 router.post(
   '/',
   verifyToken,
-  upload.fields([
-    { name: 'aadhaar', maxCount: 1 },
-    { name: 'proof', maxCount: 1 }
-  ]),
+  handleUpload,
   async (req, res) => {
     try {
       const user = await User.findById(req.user.userId);
@@ -48,9 +92,9 @@ router.post(
         userId: user._id,
         email: user.email,
         documents: [
-          req.files.aadhaar[0].originalname,
-          req.files.proof[0].originalname
-        ]
+          req.files.aadhaar ? req.files.aadhaar[0].path.replace(/\\/g, '/') : '',
+          req.files.proof ? req.files.proof[0].path.replace(/\\/g, '/') : ''
+        ].filter(Boolean)
       });
 
       await newReq.save();

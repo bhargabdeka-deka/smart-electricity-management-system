@@ -8,6 +8,7 @@ require('dotenv').config();
 
 // 🛠 Create uploads folder if missing
 fs.mkdirSync('uploads/kyc', { recursive: true });
+fs.mkdirSync('uploads/applications', { recursive: true });
 
 // 🎯 Initialize Express app
 const app  = express();

@@ -82,11 +82,55 @@ exports.updateKycStatus = async (req, res) => {
 /**
  * 👷 GET /api/admin/engineers
  * Fetch all users with role = 'engineer'
+ * Includes dynamic workload and availability calculation.
  */
 exports.fetchEngineers = async (req, res) => {
   try {
-    const engineers = await User.find({ role: 'engineer' }, 'name email phoneNumber');
-    return res.json(engineers);
+    // 1. Fetch engineers with required fields (including new 'district' field)
+    const engineers = await User.find(
+      { role: 'engineer' },
+      'name email phoneNumber district'
+    ).lean();
+
+    // 2. Fetch active workloads in a single efficient query (Avoids N+1)
+    const activeStatuses = ['Engineer Assigned', 'Visit Scheduled', 'Installation In Progress'];
+    
+    const workloadStats = await ConnectionRequest.aggregate([
+      {
+        $match: {
+          assignedEngineer: { $in: engineers.map(e => e._id) },
+          status: { $in: activeStatuses }
+        }
+      },
+      {
+        $group: {
+          _id: '$assignedEngineer',
+          count: { $sum: 1 },
+          visitDates: { $push: '$visitDate' }
+        }
+      }
+    ]);
+
+    // 3. Create a map for O(1) lookup
+    const workloadMap = workloadStats.reduce((acc, curr) => {
+      acc[curr._id.toString()] = {
+        count: curr.count,
+        visitDates: curr.visitDates.filter(d => d) // remove nulls
+      };
+      return acc;
+    }, {});
+
+    // 4. Merge data and derive availability (frontend will handle dynamic badge based on selected date)
+    const enrichedEngineers = engineers.map(eng => {
+      const stats = workloadMap[eng._id.toString()] || { count: 0, visitDates: [] };
+      return {
+        ...eng,
+        workload: stats.count,
+        visitDates: stats.visitDates
+      };
+    });
+
+    return res.json(enrichedEngineers);
   } catch (error) {
     console.error('❌ Fetch engineers error:', error.message);
     return res.status(500).json({ message: 'Failed to fetch engineers' });
@@ -98,7 +142,7 @@ exports.fetchEngineers = async (req, res) => {
  * Assign a field engineer to an approved connection request
  */
 exports.assignEngineer = async (req, res) => {
-  const { engineerId } = req.body;
+  const { engineerId, visitDate, remarks } = req.body;
   const { id } = req.params;
 
   if (!engineerId) {
@@ -111,14 +155,34 @@ exports.assignEngineer = async (req, res) => {
       return res.status(404).json({ message: 'Engineer not found or invalid role' });
     }
 
+    if (visitDate) {
+      const activeStatuses = ['Engineer Assigned', 'Visit Scheduled', 'Installation In Progress'];
+      const currentAssignments = await ConnectionRequest.countDocuments({
+        assignedEngineer: engineerId,
+        status: { $in: activeStatuses },
+        visitDate: visitDate
+      });
+
+      if (currentAssignments >= 4) {
+        return res.status(400).json({ 
+          message: 'This engineer is fully booked on the selected date. Please choose another engineer or another visit date.' 
+        });
+      }
+    }
+
+    const updatePayload = {
+      assignedEngineer: engineerId,
+      assignedBy:       req.user.userId,
+      assignmentDate:   new Date(),
+      status:           'Engineer Assigned'
+    };
+
+    if (visitDate) updatePayload.visitDate = visitDate;
+    if (remarks)   updatePayload.installationRemarks = remarks;
+
     const updated = await ConnectionRequest.findByIdAndUpdate(
       id,
-      {
-        assignedEngineer: engineerId,
-        assignedBy:       req.user.userId,
-        assignmentDate:   new Date(),
-        status:           'Engineer Assigned'
-      },
+      updatePayload,
       { new: true }
     );
 
