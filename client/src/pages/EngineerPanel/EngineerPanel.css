@@ -242,3 +242,140 @@
     box-sizing: border-box;
   }
 }
+
+/* ── New Engineer Dashboard ── */
+.eng-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.eng-stat-card {
+  background: #ffffff;
+  border: 1px solid #E0E7EF;
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.eng-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.eng-stat-title {
+  font-size: 0.85rem;
+  color: #64748B;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.eng-stat-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.eng-text-warning { color: #D97706; }
+.eng-text-info { color: #0284C7; }
+.eng-text-success { color: #16A34A; }
+
+.eng-lists-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.eng-list-card {
+  background: #ffffff;
+  border: 1px solid #E0E7EF;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.eng-list-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #E0E7EF;
+  background: #F8FAFD;
+}
+
+.eng-list-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #1E293B;
+}
+
+.eng-list-body {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.eng-empty {
+  padding: 2rem;
+  text-align: center;
+  color: #94A3B8;
+  font-style: italic;
+  margin: 0;
+}
+
+.eng-list-item {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #F1F5F9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background 0.15s;
+}
+
+.eng-list-item:last-child {
+  border-bottom: none;
+}
+
+.eng-list-item:hover {
+  background: #F8FAFC;
+}
+
+.eng-list-item-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.eng-list-item-main strong {
+  font-size: 0.95rem;
+  color: #0F172A;
+}
+
+.eng-list-item-main span {
+  font-size: 0.8rem;
+  color: #64748B;
+}
+
+.eng-list-item-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.4rem;
+}
+
+.eng-date {
+  font-size: 0.75rem;
+  color: #94A3B8;
+  font-weight: 500;
+}
+
+@media (max-width: 900px) {
+  .eng-lists-layout {
+    grid-template-columns: 1fr;
+  }
+}
