@@ -5,8 +5,10 @@ export const CONNECTION_STATUS = {
   APPROVED: 'Approved',
   ENGINEER_ASSIGNED: 'Engineer Assigned',
   VISIT_SCHEDULED: 'Visit Scheduled',
+  INSPECTION_COMPLETED: 'Inspection Completed',
   INSTALLATION_IN_PROGRESS: 'Installation In Progress',
   METER_INSTALLED: 'Meter Installed',
+  CONNECTION_ACTIVATED: 'Connection Activated',
   COMPLETED: 'Completed',
   REJECTED: 'Rejected',
   WITHDRAWN: 'Withdrawn'
@@ -19,9 +21,12 @@ export const LIFECYCLE_STATES = {
   APPROVED: 'approved',
   ENGINEER_ASSIGNED: 'engineer_assigned',
   VISIT_SCHEDULED: 'visit_scheduled',
+  INSPECTION_COMPLETED: 'inspection_completed',
   INSTALLATION_IN_PROGRESS: 'installation_in_progress',
   METER_INSTALLED: 'meter_installed',
+  CONNECTION_ACTIVATED: 'connection_activated',
   ACTIVATED: 'activated',
+  COMPLETED: 'completed',
   REJECTED: 'rejected',
   WITHDRAWN: 'withdrawn'
 };

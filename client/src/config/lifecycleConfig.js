@@ -97,6 +97,22 @@ export const LIFECYCLE_CONFIG = {
     }
   },
 
+  [LIFECYCLE_STATES.INSPECTION_COMPLETED]: {
+    pageTitle: "Inspection Completed",
+    statusBadge: { text: "Inspection Completed", color: "purple", show: true },
+    allowedNavigation: ['/homepage', '/profile', '/kyc-bill'],
+    helpdeskCategories: ['Installation Issue', 'Engineer Delay'],
+    widgets: {
+      accountSummary: { visible: true, title: "Account Summary", showAppId: true, showConsumerId: true, showPhysicalMeter: false },
+      timeline: { visible: true, title: "Connection Tracking" },
+      energy: { visible: false, title: "" },
+      stats: { visible: true, title: "Key Metrics", fields: ['kyc_status', 'complaints'] },
+      notifications: { visible: true, title: "System Notifications" },
+      rejectionReason: { visible: false, title: "" },
+      quickActions: { visible: true, title: "Quick Actions", actions: ['update_kyc', 'track_engineer'] }
+    }
+  },
+
   [LIFECYCLE_STATES.INSTALLATION_IN_PROGRESS]: {
     pageTitle: "Installation In Progress",
     statusBadge: { text: "Installation Ongoing", color: "purple", show: true },
@@ -129,7 +145,23 @@ export const LIFECYCLE_CONFIG = {
     }
   },
 
-  [LIFECYCLE_STATES.ACTIVATED]: {
+  [LIFECYCLE_STATES.CONNECTION_ACTIVATED]: {
+    pageTitle: "Smart Electricity Dashboard",
+    statusBadge: { text: "Active", color: "green", show: true },
+    allowedNavigation: ['/homepage', '/profile', '/kyc-bill', '/tracker', '/helpdesk'],
+    helpdeskCategories: ['Power Failure', 'Voltage Issue', 'Billing Issue', 'Meter Fault'],
+    widgets: {
+      accountSummary: { visible: true, title: "Account Summary", showAppId: true, showConsumerId: true, showPhysicalMeter: true },
+      timeline: { visible: false, title: "" },
+      energy: { visible: true, title: "Energy Usage Preview" },
+      stats: { visible: true, title: "Overview", fields: ['kyc_status', 'complaints', 'energy_usage', 'connection_status'] },
+      notifications: { visible: true, title: "System Notifications" },
+      rejectionReason: { visible: false, title: "" },
+      quickActions: { visible: true, title: "Quick Actions", actions: ['raise_complaint', 'energy_dashboard', 'view_bills'] }
+    }
+  },
+
+  [LIFECYCLE_STATES.COMPLETED]: {
     pageTitle: "Smart Electricity Dashboard",
     statusBadge: { text: "Active", color: "green", show: true },
     allowedNavigation: ['/homepage', '/profile', '/kyc-bill', '/tracker', '/helpdesk'],

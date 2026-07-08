@@ -8,8 +8,10 @@ const stages = [
   'Approved',
   'Engineer Assigned',
   'Visit Scheduled',
+  'Inspection Completed',
   'Installation In Progress',
   'Meter Installed',
+  'Connection Activated',
   'Completed'
 ];
 
@@ -47,7 +49,7 @@ const TimelineCard = ({ status, config }) => {
       
       <div className="timeline-container">
         {(status.status === 'Withdrawn' 
-          ? ['Registered', 'Application Submitted', 'Application Withdrawn', 'Under Review', 'Approved', 'Engineer Assigned', 'Visit Scheduled', 'Installation In Progress', 'Meter Installed', 'Completed'] 
+          ? ['Registered', 'Application Submitted', 'Application Withdrawn', 'Under Review', 'Approved', 'Engineer Assigned', 'Visit Scheduled', 'Inspection Completed', 'Installation In Progress', 'Meter Installed', 'Connection Activated', 'Completed'] 
           : stages
         ).map((stage, index) => {
           let isCompleted = false;
