@@ -32,11 +32,13 @@ exports.updateJobStatus = async (req, res) => {
     visitDate,
     meterSerialNumber,
     installationDate,
-    installationRemarks
+    installationRemarks,
+    inspection
   } = req.body;
 
   const ALLOWED = [
     'Visit Scheduled',
+    'Inspection Completed',
     'Installation In Progress',
     'Meter Installed',
     'Completed'
@@ -59,6 +61,14 @@ exports.updateJobStatus = async (req, res) => {
     }
 
     job.status = status;
+
+    if (status === 'Inspection Completed' && inspection) {
+      job.inspection = {
+        ...inspection,
+        inspectedBy: req.user.userId,
+        inspectionDate: new Date()
+      };
+    }
 
     if (visitDate)            job.visitDate            = new Date(visitDate);
     if (meterSerialNumber)    job.meterSerialNumber    = meterSerialNumber;

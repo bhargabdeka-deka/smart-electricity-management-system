@@ -9,8 +9,10 @@ const statusClass = (status) => {
   const s = status.toLowerCase();
   if (s.includes('assigned'))   return 'status-assigned';
   if (s.includes('scheduled'))  return 'status-scheduled';
+  if (s.includes('inspection')) return 'status-inprogress';
   if (s.includes('progress'))   return 'status-inprogress';
   if (s.includes('installed'))  return 'status-installed';
+  if (s.includes('activated'))  return 'status-installed';
   if (s.includes('completed'))  return 'status-completed';
   return '';
 };
@@ -36,13 +38,14 @@ const getPriority = (visitDate) => {
 
 // Component: Visual Timeline
 const JobTimeline = ({ status }) => {
-  const steps = ['Assigned', 'Accepted', 'Inspection', 'Installation', 'Completed'];
+  const steps = ['Assigned', 'Visit Scheduled', 'Inspection Completed', 'Installation', 'Completed'];
   
   let currentIndex = 0;
   if (status === 'Engineer Assigned') currentIndex = 0;
   else if (status === 'Visit Scheduled') currentIndex = 1;
+  else if (status === 'Inspection Completed') currentIndex = 2;
   else if (status === 'Installation In Progress') currentIndex = 3;
-  else if (status === 'Meter Installed' || status === 'Completed') currentIndex = 4;
+  else if (status === 'Meter Installed' || status === 'Connection Activated' || status === 'Completed') currentIndex = 4;
   else currentIndex = 0; // Default or unknown
 
   return (
@@ -106,30 +109,29 @@ export default function EngineerJobs() {
     }
   };
 
-  const openForm = (jobId) =>
-    setFormState(prev => ({
-      ...prev,
-      [jobId]: { open: true, meterSerial: '', installDate: '', remarks: '' }
-    }));
-
   const setField = (jobId, field, value) =>
     setFormState(prev => ({
       ...prev,
       [jobId]: { ...prev[jobId], [field]: value }
     }));
 
-  const submitCompletion = async (jobId) => {
+  const submitInspection = async (jobId) => {
     const f = formState[jobId] || {};
-    if (!f.meterSerial?.trim()) return toast.warning('Meter Serial Number is required.');
-    if (!f.installDate)         return toast.warning('Installation Date is required.');
+    if (!f.result) return toast.warning('Inspection Result is required.');
 
-    await updateStatus(jobId, 'Meter Installed', {
-      meterSerialNumber:   f.meterSerial,
-      installationDate:    f.installDate,
-      installationRemarks: f.remarks
+    await updateStatus(jobId, 'Inspection Completed', {
+      inspection: {
+        result: f.result,
+        customerPresent: !!f.customerPresent,
+        poleAvailable: !!f.poleAvailable,
+        wiringCondition: f.wiringCondition || '',
+        loadVerified: !!f.loadVerified,
+        distanceFromPole: f.distanceFromPole ? Number(f.distanceFromPole) : 0,
+        remarks: f.remarks || ''
+      }
     });
 
-    setFormState(prev => ({ ...prev, [jobId]: { open: false } }));
+    setField(jobId, 'openInspection', false);
   };
 
   return (
@@ -202,10 +204,20 @@ export default function EngineerJobs() {
                       <strong>Admin Remarks:</strong> {job.assignmentRemarks}
                     </div>
                   )}
-                  
-                  {job.installationRemarks && (
-                    <div className="wo-remarks" style={{ borderLeftColor: '#10B981' }}>
-                      <strong>Install Remarks:</strong> {job.installationRemarks}
+
+                  {/* Render saved inspection details if available */}
+                  {job.inspection && job.inspection.result && (
+                    <div className="wo-remarks" style={{ borderLeftColor: job.inspection.result === 'Approved' ? '#10B981' : '#F59E0B', background: '#F8FAFC' }}>
+                      <strong style={{ display: 'block', marginBottom: '0.4rem' }}>🔍 Inspection Report ({job.inspection.result})</strong>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', fontSize: '0.85rem' }}>
+                        <div><strong>Customer Present:</strong> {job.inspection.customerPresent ? 'Yes' : 'No'}</div>
+                        <div><strong>Pole Available:</strong> {job.inspection.poleAvailable ? 'Yes' : 'No'}</div>
+                        <div><strong>Wiring Condition:</strong> {job.inspection.wiringCondition || '—'}</div>
+                        <div><strong>Distance:</strong> {job.inspection.distanceFromPole}m</div>
+                      </div>
+                      {job.inspection.remarks && (
+                        <div style={{ marginTop: '0.5rem', fontSize: '0.85rem' }}><strong>Remarks:</strong> {job.inspection.remarks}</div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -222,63 +234,69 @@ export default function EngineerJobs() {
                     </button>
                   )}
 
-                  {status === 'Visit Scheduled' && (
-                    <div className="wo-schedule-action">
-                      <input
-                        type="date"
-                        className="wo-input"
-                        title="Pick visit date"
-                        onChange={e => setField(job._id, 'visitDate', e.target.value)}
-                        value={f.visitDate || ''}
-                      />
-                      <button
-                        className="wo-btn wo-btn-start"
-                        disabled={isBusy || !f.visitDate}
-                        onClick={() =>
-                          updateStatus(job._id, 'Installation In Progress', {
-                            visitDate: f.visitDate
-                          })
-                        }
-                      >
-                        Confirm Visit & Start
-                      </button>
-                    </div>
-                  )}
-
-                  {status === 'Installation In Progress' && !f.open && (
+                  {status === 'Visit Scheduled' && !f.openInspection && (
                     <button
-                      className="wo-btn wo-btn-complete"
+                      className="wo-btn wo-btn-start"
                       disabled={isBusy}
-                      onClick={() => openForm(job._id)}
+                      onClick={() => setField(job._id, 'openInspection', true)}
                     >
-                      Complete Installation
+                      Initiate Site Inspection
                     </button>
                   )}
 
-                  {/* ── Inline Completion Form ── */}
-                  {f.open && (
+                  {/* ── Inline Site Inspection Form ── */}
+                  {f.openInspection && (
                     <div className="wo-completion-form">
-                      <h4>📝 Finalize Installation</h4>
+                      <h4>🔍 Site Inspection Report</h4>
                       <div className="wo-form-grid">
-                        <input
-                          type="text"
+                        <select
                           className="wo-input"
-                          placeholder="Meter Serial Number *"
-                          value={f.meterSerial || ''}
-                          onChange={e => setField(job._id, 'meterSerial', e.target.value)}
-                        />
+                          value={f.result || ''}
+                          onChange={e => setField(job._id, 'result', e.target.value)}
+                        >
+                          <option value="">Select Inspection Result *</option>
+                          <option value="Approved">Approved</option>
+                          <option value="Revisit Required">Revisit Required</option>
+                          <option value="Customer Absent">Customer Absent</option>
+                          <option value="Site Not Feasible">Site Not Feasible</option>
+                        </select>
                         <input
-                          type="date"
+                          type="number"
                           className="wo-input"
-                          title="Installation Date"
-                          value={f.installDate || ''}
-                          onChange={e => setField(job._id, 'installDate', e.target.value)}
+                          placeholder="Distance from Pole (meters)"
+                          value={f.distanceFromPole || ''}
+                          onChange={e => setField(job._id, 'distanceFromPole', e.target.value)}
                         />
+                        <select
+                          className="wo-input"
+                          value={f.wiringCondition || ''}
+                          onChange={e => setField(job._id, 'wiringCondition', e.target.value)}
+                        >
+                          <option value="">Wiring Condition</option>
+                          <option value="Good">Good</option>
+                          <option value="Needs Repair">Needs Repair</option>
+                          <option value="Unsafe">Unsafe</option>
+                        </select>
+                        
+                        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', fontSize: '0.85rem' }}>
+                          <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                            <input type="checkbox" checked={f.customerPresent || false} onChange={e => setField(job._id, 'customerPresent', e.target.checked)} /> 
+                            Customer Present
+                          </label>
+                          <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                            <input type="checkbox" checked={f.poleAvailable || false} onChange={e => setField(job._id, 'poleAvailable', e.target.checked)} /> 
+                            Pole Available
+                          </label>
+                          <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                            <input type="checkbox" checked={f.loadVerified || false} onChange={e => setField(job._id, 'loadVerified', e.target.checked)} /> 
+                            Load Verified
+                          </label>
+                        </div>
                       </div>
                       <textarea
                         className="wo-input"
-                        placeholder="Installation remarks (optional)..."
-                        rows="3"
+                        placeholder="Inspection Remarks..."
+                        rows="2"
                         value={f.remarks || ''}
                         onChange={e => setField(job._id, 'remarks', e.target.value)}
                         style={{ marginTop: '0.75rem', width: '100%', resize: 'vertical' }}
@@ -286,20 +304,21 @@ export default function EngineerJobs() {
                       <div className="wo-form-actions">
                         <button
                           className="wo-btn wo-btn-complete"
-                          disabled={isBusy}
-                          onClick={() => submitCompletion(job._id)}
+                          disabled={isBusy || !f.result}
+                          onClick={() => submitInspection(job._id)}
                         >
-                          {isBusy ? 'Saving...' : 'Submit & Mark Completed'}
+                          {isBusy ? 'Submitting...' : 'Submit Inspection'}
                         </button>
                         <button
                           className="wo-btn wo-btn-secondary"
-                          onClick={() => setFormState(prev => ({ ...prev, [job._id]: { open: false } }))}
+                          onClick={() => setField(job._id, 'openInspection', false)}
                         >
                           Cancel
                         </button>
                       </div>
                     </div>
                   )}
+
                 </div>
               </div>
             );

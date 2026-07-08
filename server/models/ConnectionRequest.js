@@ -56,8 +56,8 @@ const connectionRequestSchema = new mongoose.Schema({
     enum: [
       'Pending', 'Under Review', 'Approved', 'Rejected',
       'Submitted', 'Documents Verified', 'Engineer Assigned',
-      'Visit Scheduled', 'Installation In Progress',
-      'Meter Installed', 'Completed', 'Withdrawn'
+      'Visit Scheduled', 'Inspection Completed', 'Installation In Progress',
+      'Meter Installed', 'Connection Activated', 'Completed', 'Withdrawn'
     ],
     default: 'Pending'
   },
@@ -144,6 +144,24 @@ const connectionRequestSchema = new mongoose.Schema({
   applicationId: {
     type: String,
     unique: true
+  },
+
+  inspection: {
+    inspectedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    inspectionDate: Date,
+    result: {
+      type: String,
+      enum: ['Approved', 'Revisit Required', 'Customer Absent', 'Site Not Feasible']
+    },
+    customerPresent: Boolean,
+    poleAvailable: Boolean,
+    wiringCondition: String,
+    loadVerified: Boolean,
+    distanceFromPole: Number,
+    remarks: String
   }
 });
 
