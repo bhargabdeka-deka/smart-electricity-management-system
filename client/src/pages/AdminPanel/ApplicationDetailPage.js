@@ -118,6 +118,20 @@ const ApplicationDetailPage = () => {
     }
   };
 
+  const handleActivate = async () => {
+    try {
+      setSubmitting(true);
+      await axios.put(`/api/admin/applications/${id}/status`, { status: 'Connection Activated' }, { headers });
+      toast.success('Connection successfully activated');
+      setActionModal(null);
+      fetchApp();
+    } catch {
+      toast.error('Failed to activate connection');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   // ── Save Remarks ─────────────────────────────────────────────────────────
   const saveRemarks = async () => {
     setSavingRemarks(true);
@@ -149,6 +163,7 @@ const ApplicationDetailPage = () => {
       'Withdrawn':         'adp-badge--withdrawn',
       'Engineer Assigned': 'adp-badge--assigned',
       'Meter Installed':   'adp-badge--completed',
+      'Connection Activated':'adp-badge--completed',
       'Completed':         'adp-badge--completed',
     };
     return map[status] || 'adp-badge--pending';
@@ -208,6 +223,13 @@ const ApplicationDetailPage = () => {
               </button>
               <button className="adp-btn adp-btn--reject" onClick={() => setActionModal('reject')}>
                 ❌ Reject
+              </button>
+            </div>
+          )}
+          {app?.status === 'Meter Installed' && (
+            <div className="adp-action-btns">
+              <button className="adp-btn adp-btn--approve" onClick={() => setActionModal('activate')}>
+                ⚡ Activate Connection
               </button>
             </div>
           )}
@@ -288,15 +310,69 @@ const ApplicationDetailPage = () => {
             )}
           </Section>
 
+          {/* FIELD WORK REPORT */}
+          {(app?.inspection || app?.installation || app?.activation) && (
+            <Section title="Field Work Report" icon="📋">
+              {app.inspection && (
+                <div style={{ marginBottom: '1rem', padding: '1rem', background: '#F8FAFC', borderLeft: '4px solid #10B981', borderRadius: '4px' }}>
+                  <h4 style={{ marginBottom: '0.5rem', color: '#1E293B', fontSize: '0.95rem' }}>🔍 Inspection Report</h4>
+                  <InfoGrid>
+                    <InfoRow label="Result" value={app.inspection.result} />
+                    <InfoRow label="Date" value={fmtDate(app.inspection.inspectionDate)} />
+                    <InfoRow label="Customer Present" value={app.inspection.customerPresent ? 'Yes' : 'No'} />
+                    <InfoRow label="Pole Available" value={app.inspection.poleAvailable ? 'Yes' : 'No'} />
+                    <InfoRow label="Load Verified" value={app.inspection.loadVerified ? 'Yes' : 'No'} />
+                    <InfoRow label="Wiring Condition" value={app.inspection.wiringCondition} />
+                    <InfoRow label="Distance From Pole" value={`${app.inspection.distanceFromPole}m`} />
+                  </InfoGrid>
+                  {app.inspection.remarks && (
+                    <div style={{ marginTop: '0.5rem', fontSize: '0.85rem' }}><strong>Remarks:</strong> {app.inspection.remarks}</div>
+                  )}
+                </div>
+              )}
+
+              {app.installation && (
+                <div style={{ marginBottom: '1rem', padding: '1rem', background: '#EFF6FF', borderLeft: '4px solid #3B82F6', borderRadius: '4px' }}>
+                  <h4 style={{ marginBottom: '0.5rem', color: '#1E293B', fontSize: '0.95rem' }}>⚡ Installation Report</h4>
+                  <InfoGrid>
+                    <InfoRow label="Meter Serial Number" value={app.installation.meterSerialNumber} />
+                    <InfoRow label="Manufacturer" value={app.installation.meterManufacturer} />
+                    <InfoRow label="Meter Type" value={app.installation.meterType} />
+                    <InfoRow label="Seal Number" value={app.installation.sealNumber} />
+                    <InfoRow label="Initial Reading" value={`${app.installation.initialReading} kWh`} />
+                    <InfoRow label="Result" value={app.installation.installationResult} />
+                    <InfoRow label="Date" value={fmtDate(app.installation.installationDate)} />
+                  </InfoGrid>
+                  {app.installation.installationRemarks && (
+                    <div style={{ marginTop: '0.5rem', fontSize: '0.85rem' }}><strong>Remarks:</strong> {app.installation.installationRemarks}</div>
+                  )}
+                </div>
+              )}
+
+              {app.activation && (
+                <div style={{ padding: '1rem', background: '#ECFDF5', borderLeft: '4px solid #059669', borderRadius: '4px' }}>
+                  <h4 style={{ marginBottom: '0.5rem', color: '#1E293B', fontSize: '0.95rem' }}>✅ Activation Report</h4>
+                  <InfoGrid>
+                    <InfoRow label="Activation Date" value={fmtDate(app.activation.activationDate)} />
+                    <InfoRow label="Activation Method" value={app.activation.activationMethod} />
+                  </InfoGrid>
+                  {app.activation.activationRemarks && (
+                    <div style={{ marginTop: '0.5rem', fontSize: '0.85rem' }}><strong>Remarks:</strong> {app.activation.activationRemarks}</div>
+                  )}
+                </div>
+              )}
+            </Section>
+          )}
+
           {/* Connection Details */}
           <Section title="Connection Details" icon="🔌">
             <InfoGrid>
               <InfoRow label="Meter Type"        value={app?.meterType} />
               <InfoRow label="Requested Load"    value={`${app?.load} kW`} />
-              <InfoRow label="Meter Serial No."  value={app?.meterSerialNumber || '—'} />
+              <InfoRow label="Meter Serial No."  value={app?.meterSerialNumber || app?.installation?.meterSerialNumber || '—'} />
               <InfoRow label="Decision Date"     value={fmtDate(app?.decisionDate)} />
               <InfoRow label="Visit Date"        value={fmtDate(app?.visitDate)} />
-              <InfoRow label="Installation Date" value={fmtDate(app?.installationDate)} />
+              <InfoRow label="Installation Date" value={fmtDate(app?.installationDate || app?.installation?.installationDate)} />
               <InfoRow label="Completion Date"   value={fmtDate(app?.completionDate)} />
             </InfoGrid>
           </Section>
@@ -522,6 +598,29 @@ const ApplicationDetailPage = () => {
               disabled={submitting || !actionRemark.trim()}
             >
               {submitting ? 'Rejecting…' : '❌ Confirm Rejection'}
+            </button>
+          </div>
+        </Modal>
+      )}
+
+      {/* ══ ACTIVATE MODAL ═════════════════════════════════════════════════ */}
+      {actionModal === 'activate' && (
+        <Modal
+          title="⚡ Activate Connection"
+          headerClass="adp-mhdr--approve"
+          onClose={() => setActionModal(null)}
+        >
+          <div className="adp-modal-info">
+            <strong>{app?.fullName}</strong>
+            <span>Meter S/N: {app?.installation?.meterSerialNumber}</span>
+          </div>
+          <p style={{ marginBottom: '1rem', color: '#4B5563', fontSize: '0.9rem' }}>
+            You are about to activate this connection. Have you verified the hardware installation details?
+          </p>
+          <div className="adp-modal-footer">
+            <button className="adp-btn adp-btn--secondary" onClick={() => setActionModal(null)}>Cancel</button>
+            <button className="adp-btn adp-btn--approve" onClick={handleActivate} disabled={submitting}>
+              {submitting ? 'Activating…' : '⚡ Confirm Activation'}
             </button>
           </div>
         </Modal>

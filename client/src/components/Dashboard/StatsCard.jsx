@@ -64,8 +64,10 @@ const StatsCard = ({ connectionStatus, complaintStatus, kycStatus, usageData, co
                 </>
               ) : (
                 <>
-                  <p>Estimated Bill</p>
-                  <h4>₹0</h4>
+                  <p>Energy Usage</p>
+                  <h4>0 Units</h4>
+                  <span style={{ fontSize: '0.75rem', color: '#6B7280', display: 'block', marginTop: '2px' }}>Est. Bill: ₹0.00</span>
+                  <span style={{ fontSize: '0.75rem', color: '#D97706', fontWeight: 500 }}>Pending First Reading</span>
                 </>
               )}
             </div>

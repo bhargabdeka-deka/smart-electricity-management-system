@@ -134,6 +134,27 @@ export default function EngineerJobs() {
     setField(jobId, 'openInspection', false);
   };
 
+  const submitInstallation = async (jobId) => {
+    const f = formState[jobId] || {};
+    if (!f.meterSerialNumber || !f.meterManufacturer || !f.sealNumber || !f.installationResult) {
+      return toast.warning('Please fill in all required installation fields.');
+    }
+
+    await updateStatus(jobId, 'Meter Installed', {
+      installation: {
+        meterSerialNumber: f.meterSerialNumber,
+        meterManufacturer: f.meterManufacturer,
+        meterType: f.meterType || '1-Phase',
+        sealNumber: f.sealNumber,
+        initialReading: f.initialReading ? Number(f.initialReading) : 0,
+        installationResult: f.installationResult,
+        installationRemarks: f.installationRemarks || ''
+      }
+    });
+
+    setField(jobId, 'openInstallation', false);
+  };
+
   return (
     <div className="jobs-container cr-admin-container">
       <div className="cr-top-header">
@@ -217,6 +238,22 @@ export default function EngineerJobs() {
                       </div>
                       {job.inspection.remarks && (
                         <div style={{ marginTop: '0.5rem', fontSize: '0.85rem' }}><strong>Remarks:</strong> {job.inspection.remarks}</div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Render saved installation details if available */}
+                  {job.installation && job.installation.meterSerialNumber && (
+                    <div className="wo-remarks" style={{ borderLeftColor: job.installation.installationResult === 'Successful' ? '#3B82F6' : '#EF4444', background: '#EFF6FF', marginTop: '0.5rem' }}>
+                      <strong style={{ display: 'block', marginBottom: '0.4rem' }}>⚡ Installation Report ({job.installation.installationResult})</strong>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', fontSize: '0.85rem' }}>
+                        <div><strong>Meter S/N:</strong> {job.installation.meterSerialNumber}</div>
+                        <div><strong>Manufacturer:</strong> {job.installation.meterManufacturer}</div>
+                        <div><strong>Seal No:</strong> {job.installation.sealNumber}</div>
+                        <div><strong>Reading:</strong> {job.installation.initialReading}</div>
+                      </div>
+                      {job.installation.installationRemarks && (
+                        <div style={{ marginTop: '0.5rem', fontSize: '0.85rem' }}><strong>Remarks:</strong> {job.installation.installationRemarks}</div>
                       )}
                     </div>
                   )}
@@ -317,6 +354,121 @@ export default function EngineerJobs() {
                         </button>
                       </div>
                     </div>
+                  )}
+
+                  {status === 'Inspection Completed' && (
+                    <button
+                      className="wo-btn wo-btn-start"
+                      disabled={isBusy}
+                      onClick={() => updateStatus(job._id, 'Installation In Progress')}
+                    >
+                      Begin Installation
+                    </button>
+                  )}
+
+                  {status === 'Installation In Progress' && !f.openInstallation && (
+                    <button
+                      className="wo-btn wo-btn-start"
+                      disabled={isBusy}
+                      onClick={() => setField(job._id, 'openInstallation', true)}
+                    >
+                      Fill Installation Report
+                    </button>
+                  )}
+
+                  {/* ── Inline Installation Form ── */}
+                  {f.openInstallation && (
+                    <div className="wo-completion-form">
+                      <h4>⚡ Meter Installation Report</h4>
+                      <div className="wo-form-grid">
+                        <input
+                          type="text"
+                          className="wo-input"
+                          placeholder="Meter Serial Number *"
+                          value={f.meterSerialNumber || ''}
+                          onChange={e => setField(job._id, 'meterSerialNumber', e.target.value)}
+                        />
+                        <select
+                          className="wo-input"
+                          value={f.meterManufacturer || ''}
+                          onChange={e => setField(job._id, 'meterManufacturer', e.target.value)}
+                        >
+                          <option value="">Manufacturer *</option>
+                          <option value="Secure">Secure</option>
+                          <option value="Genus">Genus</option>
+                          <option value="L&T">L&T</option>
+                          <option value="HPL">HPL</option>
+                        </select>
+                        <input
+                          type="text"
+                          className="wo-input"
+                          placeholder="Seal Number *"
+                          value={f.sealNumber || ''}
+                          onChange={e => setField(job._id, 'sealNumber', e.target.value)}
+                        />
+                        <input
+                          type="number"
+                          className="wo-input"
+                          placeholder="Initial Reading (kWh)"
+                          value={f.initialReading || ''}
+                          onChange={e => setField(job._id, 'initialReading', e.target.value)}
+                        />
+                        <select
+                          className="wo-input"
+                          value={f.meterType || ''}
+                          onChange={e => setField(job._id, 'meterType', e.target.value)}
+                        >
+                          <option value="">Meter Type</option>
+                          <option value="1-Phase">1-Phase</option>
+                          <option value="3-Phase">3-Phase</option>
+                        </select>
+                        <select
+                          className="wo-input"
+                          value={f.installationResult || ''}
+                          onChange={e => setField(job._id, 'installationResult', e.target.value)}
+                        >
+                          <option value="">Result *</option>
+                          <option value="Successful">Successful</option>
+                          <option value="Failed - Customer Refused">Failed - Customer Refused</option>
+                          <option value="Failed - Technical Issue">Failed - Technical Issue</option>
+                        </select>
+                      </div>
+                      <textarea
+                        className="wo-input"
+                        placeholder="Installation Remarks..."
+                        rows="2"
+                        value={f.installationRemarks || ''}
+                        onChange={e => setField(job._id, 'installationRemarks', e.target.value)}
+                        style={{ marginTop: '0.75rem', width: '100%', resize: 'vertical' }}
+                      />
+                      <div className="wo-form-actions">
+                        <button
+                          className="wo-btn wo-btn-complete"
+                          disabled={isBusy || !f.meterSerialNumber || !f.meterManufacturer || !f.sealNumber || !f.installationResult}
+                          onClick={() => submitInstallation(job._id)}
+                        >
+                          {isBusy ? 'Submitting...' : 'Submit Installation'}
+                        </button>
+                        <button
+                          className="wo-btn wo-btn-secondary"
+                          onClick={() => setField(job._id, 'openInstallation', false)}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {status === 'Meter Installed' && (
+                     <div style={{ padding: '0.75rem', backgroundColor: '#ECFDF5', border: '1px solid #10B981', color: '#047857', borderRadius: '6px', textAlign: 'center', fontWeight: '500' }}>
+                        ✅ Hardware Installed - Waiting for Admin Activation
+                     </div>
+                  )}
+
+                  {status === 'Connection Activated' && (
+                     <div style={{ padding: '0.75rem', backgroundColor: '#EFF6FF', border: '1px solid #3B82F6', color: '#1D4ED8', borderRadius: '6px', textAlign: 'center', fontWeight: '500' }}>
+                        ⚡ Grid Energized - Connection Activated
+                     </div>
                   )}
 
                 </div>

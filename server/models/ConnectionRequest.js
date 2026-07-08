@@ -162,6 +162,40 @@ const connectionRequestSchema = new mongoose.Schema({
     loadVerified: Boolean,
     distanceFromPole: Number,
     remarks: String
+  },
+
+  installation: {
+    installedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    installationDate: Date,
+    meterSerialNumber: String,
+    meterManufacturer: String,
+    meterType: String,
+    initialReading: {
+      type: Number,
+      default: 0
+    },
+    sealNumber: String,
+    installationRemarks: String,
+    installationResult: {
+      type: String,
+      enum: ['Successful', 'Failed - Customer Refused', 'Failed - Technical Issue']
+    }
+  },
+
+  activation: {
+    activatedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    activationDate: Date,
+    activationRemarks: String,
+    activationMethod: {
+      type: String,
+      default: 'System Activation'
+    }
   }
 });
 

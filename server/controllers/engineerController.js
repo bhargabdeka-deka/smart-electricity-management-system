@@ -33,7 +33,8 @@ exports.updateJobStatus = async (req, res) => {
     meterSerialNumber,
     installationDate,
     installationRemarks,
-    inspection
+    inspection,
+    installation
   } = req.body;
 
   const ALLOWED = [
@@ -68,6 +69,21 @@ exports.updateJobStatus = async (req, res) => {
         inspectedBy: req.user.userId,
         inspectionDate: new Date()
       };
+      job.markModified('inspection');
+    }
+
+    if (status === 'Meter Installed' && installation) {
+      job.installation = {
+        ...installation,
+        installedBy: req.user.userId,
+        installationDate: new Date()
+      };
+      job.markModified('installation');
+      
+      // Keep root properties for backward compatibility if needed by Admin portals
+      if (installation.meterSerialNumber) job.meterSerialNumber = installation.meterSerialNumber;
+      if (installation.installationRemarks) job.installationRemarks = installation.installationRemarks;
+      job.installationDate = new Date();
     }
 
     if (visitDate)            job.visitDate            = new Date(visitDate);

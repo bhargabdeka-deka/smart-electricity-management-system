@@ -199,3 +199,43 @@ exports.assignEngineer = async (req, res) => {
     return res.status(500).json({ message: 'Failed to assign engineer' });
   }
 };
+
+/**
+ * ✅ PUT /api/admin/applications/:id/status
+ * Update a connection application’s status and handle activation
+ */
+exports.updateApplicationStatus = async (req, res) => {
+  try {
+    const { status, activationMethod, activationRemarks } = req.body;
+    const { id } = req.params;
+
+    if (!status) {
+      return res.status(400).json({ message: 'Missing status value' });
+    }
+
+    const application = await ConnectionRequest.findById(id);
+    if (!application) {
+      return res.status(404).json({ message: 'Request not found' });
+    }
+
+    application.status = status;
+    application.decisionDate = new Date();
+
+    if (status === 'Connection Activated') {
+      application.activation = {
+        activatedBy: req.user.userId,
+        activationDate: new Date(),
+        activationMethod: activationMethod || 'System Activation',
+        activationRemarks: activationRemarks || ''
+      };
+    }
+
+    await application.save();
+
+    console.log(`✅ Admin ${req.user.email} set application ${id} to ${status}`);
+    return res.json({ message: `Status updated to ${status}`, updated: application });
+  } catch (err) {
+    console.error('❌ Update status failed:', err.message);
+    return res.status(500).json({ message: 'Failed to update application status' });
+  }
+};

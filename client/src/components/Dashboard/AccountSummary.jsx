@@ -15,10 +15,11 @@ const AccountSummary = ({ user, connectionStatus, dashboardData, config }) => {
   const status = connectionStatus?.status || 'Not Applied';
   const type = connectionStatus?.meterType || 'Domestic';
   const account = dashboardData?.meterNumber || user?.meterNumber || 'Pending';
-  const physicalMeter = connectionStatus?.meterSerialNumber;
+  const physicalMeter = connectionStatus?.meterSerialNumber || connectionStatus?.installation?.meterSerialNumber;
   const appId = connectionStatus?.applicationId || (connectionStatus?._id ? `APP-${connectionStatus._id.slice(-6).toUpperCase()}` : null);
   const consumerId = connectionStatus?.consumerId || 'Pending';
   const district = user?.district || 'Not Assigned';
+  const activationDate = connectionStatus?.activation?.activationDate || null;
 
   if (!config?.visible) return null;
 
@@ -74,6 +75,17 @@ const AccountSummary = ({ user, connectionStatus, dashboardData, config }) => {
           {district.replace(/_/g, ' ')}
         </div>
       </div>
+
+      {activationDate && (
+        <div className="summary-col">
+          <div className="summary-label">
+            <Zap size={14} /> Activation Date
+          </div>
+          <div className="summary-value">
+            {new Date(activationDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+          </div>
+        </div>
+      )}
 
       {config.showAppId && (
         <div className="summary-col">

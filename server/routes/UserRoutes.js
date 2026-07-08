@@ -149,38 +149,35 @@ router.get('/dashboard', verifyToken, async (req, res) => {
 router.get('/usage', verifyToken, async (req, res) => {
   try {
     const meter = req.user.meterNumber;
-    const currentMonth = new Date().toISOString().slice(0, 7);
 
-    let record = await Usage.findOne({ meterNumber: meter });
-    if (record) {
-      const monthExists = record.monthlyUsage.some(e => e.month === currentMonth);
-      if (!monthExists) {
-        const mockUnits = Math.floor(Math.random() * 310 + 250);
-        record.monthlyUsage.push({ month: currentMonth, units: mockUnits });
-        record.lastUpdated = new Date();
-        await record.save();
-      }
-      return res.json(record.monthlyUsage);
+    console.log("\n========== USAGE DEBUG ==========");
+    console.log("Meter:", meter);
+
+    const count = await Usage.countDocuments();
+    console.log("Total Usage Docs:", count);
+
+    const all = await Usage.find();
+    console.log("Mongo DB Name:", mongoose.connection.db.databaseName);
+    console.log("All Docs:", JSON.stringify(all, null, 2));
+
+    const record = await Usage.findOne({ meterNumber: meter });
+
+    console.log("Matched Record:", JSON.stringify(record, null, 2));
+
+    if (!record) {
+      console.log("Returning []");
+      return res.json([]);
     }
 
-    // First-time entry
-    const monthlyUsage = [];
-    for (let i = 5; i >= 0; i--) {
-      const date = new Date();
-      date.setMonth(date.getMonth() - i);
-      monthlyUsage.push({
-        month: date.toISOString().slice(0, 7),
-        units: Math.floor(Math.random() * 310 + 250)
-      });
-    }
+    console.log("Returning DB Usage");
+    return res.json(record.monthlyUsage);
 
-    await Usage.create({ meterNumber: meter, monthlyUsage, lastUpdated: new Date() });
-    return res.json(monthlyUsage);
   } catch (err) {
-    console.error('❌ Monthly usage error:', err);
-    res.status(500).json({ message: 'Server error while tracking usage' });
+    console.error(err);
+    res.status(500).json({ message: err.message });
   }
 });
+
 
 // 👤 Profile
 router.get('/profile', verifyToken, async (req, res) => {

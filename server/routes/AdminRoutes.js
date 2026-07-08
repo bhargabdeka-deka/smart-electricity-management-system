@@ -14,7 +14,8 @@ const {
   fetchKycSubmissions,
   updateKycStatus,
   fetchEngineers,
-  assignEngineer
+  assignEngineer,
+  updateApplicationStatus
 } = require('../controllers/adminController');
 
 /**
@@ -50,42 +51,7 @@ router.put(
   '/applications/:id/status',
   verifyToken,
   isAdmin,
-  async (req, res) => {
-    try {
-      const { status } = req.body;
-      if (!status) {
-        return res
-          .status(400)
-          .json({ message: 'Missing status value' });
-      }
-      if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-        return res
-          .status(400)
-          .json({ message: 'Invalid application ID' });
-      }
-
-      const updated = await ConnectionRequest.findByIdAndUpdate(
-        req.params.id,
-        { status, decisionDate: new Date() },
-        { new: true }
-      );
-      if (!updated) {
-        return res
-          .status(404)
-          .json({ message: 'Request not found' });
-      }
-
-      console.log(
-        `✅ Admin ${req.user.email} set application ${req.params.id} to ${status}`
-      );
-      return res.json({ message: `Status updated to ${status}`, updated });
-    } catch (err) {
-      console.error('❌ Update status failed:', err.message);
-      return res
-        .status(500)
-        .json({ message: 'Failed to update application status' });
-    }
-  }
+  updateApplicationStatus
 );
 
 /**
